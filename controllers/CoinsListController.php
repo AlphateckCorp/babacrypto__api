@@ -16,7 +16,11 @@ class CoinsListController extends ActiveController
         // $query = new yii\db\Query;
         // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return new ActiveDataProvider([
-            'query' => Coinlist::find()->with(['coinlistinfos'])->asArray()->orderBy(['SortOrder' => SORT_ASC])->limit(10)
+            'query' => Coinlist::find()
+            ->joinWith(['coinlistinfos'])
+            ->asArray()
+            ->orderBy(['SortOrder' => SORT_ASC])
+            ->limit(10)
         ]);
     }
 
