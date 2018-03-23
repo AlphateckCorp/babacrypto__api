@@ -13,15 +13,41 @@ class CoinsListController extends ActiveController
     public $modelClass = 'app\models\Coinlistinfo';
 
     public function actionYour() {
+
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $url = 'https://min-api.cryptocompare.com/data/all/coinlist';
+        $result = $this->curlToRestApi('get', $url);
+        $decode = json_decode($result, true);
+        $topCoins= $decode['DefaultWatchlist']['CoinIs'];
+        $coinContentList = [];
+        $data = Coinlist::find()->all();    
+        
+        $url_string = explode(',', $topCoins);
+        foreach($url_string as $urls){
+            $dataz[] = Coinlist::find()->where(['CoinId'=> $urls])->asArray()->one();
+        }
+        
+        foreach($dataz as $datazz){  
+            if(in_array($datazz['CoinId'], $url_string)){
+                $coinContentList[] = Coinlist::find()
+                    ->where(['CoinId'=>$datazz['CoinId']])
+                    ->joinWith(['coinlistinfos'])
+                    ->asArray()
+                    ->one();
+            }
+        }    
+        return $coinContentList;
+
         // $query = new yii\db\Query;
         // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return new ActiveDataProvider([
-            'query' => Coinlist::find()
-            ->joinWith(['coinlistinfos'])
-            ->asArray()
-            ->orderBy(['SortOrder' => SORT_ASC])
-            ->limit(10)
-        ]);
+        // return new ActiveDataProvider([
+        //     'query' => Coinlist::find()
+        //     ->joinWith(['coinlistinfos'])
+        //     // ->with(['coinlistinfos'])
+        //     ->asArray()
+        //     // ->orderBy(['SortOrder' => SORT_ASC])
+        //     ->limit(10)
+        // ]);
     }
 
     public function actionIndex()
@@ -118,7 +144,7 @@ class CoinsListController extends ActiveController
         $url_string = explode(',', $sho);
         $data = Coinlist::find()->all();
         $listSymbols = [];
-        $staticListSymbol = "USD,EUR,ETH,BTC";
+        $staticListSymbol = "USD,EUR,ETH";
         foreach($data as $datazz){  
             if(in_array($datazz['CoinId'], $url_string)){
                 // $listSymbols[] = $datazz['Symbol'];

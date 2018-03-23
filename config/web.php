@@ -53,9 +53,10 @@ $config = [
              'coinlist' => 'coins-list/',
              'storecoinlist' => 'coins-list/store-coin',
              'storecoin' => 'site/store-coins',
-             'coindtls' => 'coins-list/fetch',
+             'coinmarket' => 'coins-list/fetch',
              'coindtlsd' => 'site/fetchs',
              'yours' => 'coins-list/your',
+            //  'tests' => 'tests/make',
             ],
             // 'rules' => [
             //     'class' => 'yii\rest\UrlRule', 

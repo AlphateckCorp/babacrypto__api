@@ -2,7 +2,7 @@
 
 // return [
 //     'class' => 'yii\db\Connection',
-//     'dsn' => 'mysql:host=localhost;dbname=babacrypto',
+//     'dsn' => 'mysql:host=localhost;dbname=babacrypto_master',
 //     'username' => 'root',
 //     'password' => 'root',
 //     'charset' => 'utf8',
