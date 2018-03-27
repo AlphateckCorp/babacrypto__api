@@ -7,6 +7,8 @@ namespace app\commands;
 use yii\console\Controller;
 use app\models\Coinlist;
 use app\models\Coinlistinfo;
+
+use Yii;
 /**
  * Test controller
  */
@@ -35,13 +37,21 @@ class TestsController extends Controller {
         $data = Coinlist::find()->all();
         $listSymbols = [];
         $staticListSymbol = "USD,EUR,ETH";
+        // Yii::$app->db->createCommand()->truncateTable('coinlistinfo')->execute();
+        
         foreach($data as $datazz){  
             if(in_array($datazz['CoinId'], $url_string)){
                 $listSymbolz = $datazz['Symbol'];
                 $datas = json_decode($this->curlToGetPriceApi('get', $datazz->Symbol, $staticListSymbol));
                 $fordata = $datas->RAW->$listSymbolz;
+                 
                 foreach($fordata as $ls){
-                    $models = new Coinlistinfo();
+                    $models = Coinlistinfo::find()
+                    ->where(['CoinInputSymbol' => $datazz['Symbol'], 'TOSYMBOL' => $ls->TOSYMBOL ])
+                    ->one();
+                    if($models==null){
+                        $models = new Coinlistinfo();
+                    } 
                     $models->CoinlistId = $datazz['id'];
                     $models->LiveCoinId = $datazz['CoinId'];
                     $models->CoinInputSymbol = $datazz['Symbol'];
@@ -72,8 +82,8 @@ class TestsController extends Controller {
                     $models->SUPPLY = $ls->SUPPLY;
                     $models->MKTCAP = $ls->MKTCAP;
                     $models->TOTALVOLUME24H = $ls->TOTALVOLUME24H;
-                    $models->TOTALVOLUME24HTO = $ls->TOTALVOLUME24HTO;
-                    $models->save();     
+                    $models->TOTALVOLUME24HTO = $ls->TOTALVOLUME24HTO;                       
+                    $models->save(); 
                 }
             }
         }

@@ -56,6 +56,9 @@ $config = [
              'coinmarket' => 'coins-list/fetch',
              'coindtlsd' => 'site/fetchs',
              'yours' => 'coins-list/your',
+             'storeexchangelist' => 'coins-list/store-exchange-list',
+             'exchangelist' => 'coins-list/exchange-list',
+             'exchangecoin' => 'coins-list/exchange-coin-list',
             //  'tests' => 'tests/make',
             ],
             // 'rules' => [

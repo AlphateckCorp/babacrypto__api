@@ -284,20 +284,19 @@ class SiteController extends Controller
             if(in_array($datazz['CoinId'], $url_string)){
                 // $listSymbols[] = $datazz['Symbol'];
                 $listSymbolz = $datazz['Symbol'];
+                        
                 $datas = json_decode($this->curlToGetPriceApi('get', $datazz->Symbol, $staticListSymbol));
                 $fordata = $datas->RAW->$listSymbolz;
                 
                     
                     foreach($fordata as $ls){
 
-                        // $models = Coinlistinfo::find()
-                        //         ->where('CoinInputSymbol > :CoinInputSymbol', [':CoinInputSymbol' => $datazz['Symbol']])
-                        //         ->andWhere('TOSYMBOL > :TOSYMBOL', [':TOSYMBOL' => $ls->TOSYMBOL])
-                        //         ->one();
-
-                        // if($models){
+                        $models = Coinlistinfo::find()
+                        ->where(['CoinInputSymbol' => $datazz['Symbol'], 'TOSYMBOL' => $ls->TOSYMBOL ])
+                        ->one();
+                        if($models==null){
                             $models = new Coinlistinfo();
-                        // }
+                        } 
                         $models->CoinlistId = $datazz['id'];
                         $models->LiveCoinId = $datazz['CoinId'];
                         $models->CoinInputSymbol = $datazz['Symbol'];
@@ -328,9 +327,8 @@ class SiteController extends Controller
                         $models->SUPPLY = $ls->SUPPLY;
                         $models->MKTCAP = $ls->MKTCAP;
                         $models->TOTALVOLUME24H = $ls->TOTALVOLUME24H;
-                        $models->TOTALVOLUME24HTO = $ls->TOTALVOLUME24HTO;
-                        $models->save();     
-                        
+                        $models->TOTALVOLUME24HTO = $ls->TOTALVOLUME24HTO;                       
+                        $models->save(); 
                 }
                 
                 

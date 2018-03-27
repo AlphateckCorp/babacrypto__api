@@ -1,9 +1,10 @@
 <?php
 namespace app\controllers;
-//use Yii;
+use Yii;
 // use yii\web\Controller;
 use app\models\Coinlist;
 use app\models\Coinlistinfo;
+use app\models\Exchangelist;
 //use yii\helpers\Json;
 use yii\data\ActiveDataProvider;
 use yii\rest\ActiveController;
@@ -191,31 +192,6 @@ class CoinsListController extends ActiveController
                 
             }
         }
-        exit;
-        // print_r($listofData);
-        // exit;
-        // foreach($listofData as $list){
-        //     print_r($list->RAW->ETH);
-        //     exit;
-        // }
-        // $symbolListString = implode(",", $listSymbols);
-        
-        // foreach($data as $datazz){    
-
-            // $listofData = $this->curlToGetPriceApi('get', $datazz->Symbol, $symbolListString);
-            // $listofData = json_decode($listofData, true);
-            // $listofData = Json::encode($listofData);
-            // print_r($listofData);
-            // exit;
-            // echo($listofData);
-            // return $marketListS;
-            // print_r($listofData);
-            // exit;
-            
-        // }
-        // $marketListS = json_encode($listofData);
-        // print_r($listofData);
-        // exit;
         return $datas;
     }
 
@@ -301,5 +277,87 @@ class CoinsListController extends ActiveController
 
     public function extraFields() {
         return ['coinlistinfos'];
+    }
+    public function actionStoreExchangeList(){
+        $url = "https://min-api.cryptocompare.com/data/all/exchanges";
+        $result = $this->curlToRestApi('get', $url);
+        $decode = json_decode($result, true);
+        $checkList = ($decode['Cryptsy']);
+        foreach($checkList as $key => $value){
+                foreach($value as $ls)
+                {
+                    $urls="https://min-api.cryptocompare.com/data/top/exchanges/full?fsym=".$key."&tsym=".$ls;
+                    $results = $this->curlToRestApi('get', $urls);
+                    $decodes = json_decode($results, true);
+                    $counts = count($decodes['Data']['CoinInfo']);
+                    $coinId='';
+                    if($counts>0){
+                        $coinId= $decodes['Data']['CoinInfo']['Id'];
+                    }
+                    $exchangeList = $decodes['Data']['Exchanges'];
+                    foreach($exchangeList as $exlistAll){
+                        
+                            $models = Exchangelist::find()
+                              ->where(['FROMSYMBOL' => $exlistAll['FROMSYMBOL'], 
+                                'MARKET' => $exlistAll['MARKET'],
+                                'TOSYMBOL' => $exlistAll['TOSYMBOL'] ])
+                                ->one();
+                        
+                            if($models==null){
+                                $models = new Exchangelist();
+                            } 
+
+                            $models->LiveCoinId = $coinId;                      
+                            $models->TYPE = $exlistAll['TYPE'];
+                            $models->MARKET = $exlistAll['MARKET'];
+                            $models->FROMSYMBOL = $exlistAll['FROMSYMBOL'];
+                            $models->TOSYMBOL = $exlistAll['TOSYMBOL'];
+                            $models->FLAGS = $exlistAll['FLAGS'];
+                            $models->PRICE = $exlistAll['PRICE'];
+                            $models->LASTUPDATE = $exlistAll['LASTUPDATE'];
+                            $models->LASTVOLUME = $exlistAll['LASTVOLUME'];
+                            $models->LASTVOLUMETO = $exlistAll['LASTVOLUMETO'];
+                            $models->LASTTRADEID = $exlistAll['LASTTRADEID'];
+                            $models->VOLUME24HOUR = $exlistAll['VOLUME24HOUR'] ;
+                            $models->VOLUME24HOURTO = $exlistAll['VOLUME24HOURTO'];
+                            $models->OPEN24HOUR = $exlistAll['OPEN24HOUR'];
+                            $models->HIGH24HOUR = $exlistAll['HIGH24HOUR'];
+                            $models->LOW24HOUR = $exlistAll['LOW24HOUR'];
+                            $models->CHANGE24HOUR = $exlistAll['CHANGE24HOUR'];
+                            $models->CHANGEPCT24HOUR = $exlistAll['CHANGEPCT24HOUR'];
+                            $models->CHANGEPCTDAY = $exlistAll['CHANGEPCTDAY'];
+                            $models->CHANGEDAY = $exlistAll['CHANGEDAY'];
+                            $models->save(false);
+                    }
+            }
+        }
+        return ('done');
+    }
+    public function getExchange($method, $url, $data = null)
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($curl);
+        curl_close($curl);
+        return $result;
+    }
+    public function actionExchangeList(){
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $exchangeList = Exchangelist::find()->all();
+        return ($exchangeList);
+    }
+   
+    public function actionExchangeCoinList(){
+        // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        if(Yii::$app->request->post())
+        {
+            $coinInputSymbol = Yii::$app->request->post('coinInputSymbol');
+            $data = Coinlistinfo::find()
+            ->where(['CoinInputSymbol'=>$coinInputSymbol])
+            ->all();
+            return ($data);
+        }   
+        
     }
 }
