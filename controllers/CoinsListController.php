@@ -5,7 +5,7 @@ use Yii;
 use app\models\Coinlist;
 use app\models\Coinlistinfo;
 use app\models\Exchangelist;
-//use yii\helpers\Json;
+use yii\helpers\Json;
 use yii\data\ActiveDataProvider;
 use yii\rest\ActiveController;
 
@@ -349,15 +349,39 @@ class CoinsListController extends ActiveController
     }
    
     public function actionExchangeCoinList(){
-        // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        // $check = Yii::$app->request->isPost;
         if(Yii::$app->request->post())
-        {
+        {   
             $coinInputSymbol = Yii::$app->request->post('coinInputSymbol');
-            $data = Coinlistinfo::find()
-            ->where(['CoinInputSymbol'=>$coinInputSymbol])
+            $data = Coinlist::find()
+            ->where(['symbol'=>$coinInputSymbol])
+            ->joinWith(['coinlistinfos'])
+            ->asArray()
             ->all();
             return ($data);
-        }   
-        
+        }   else{
+            return('else');
+        }
+    }
+    public function actionExchangeMarketList(){
+        if(Yii::$app->request->post())
+        {   
+            $coinInputSymbol = Yii::$app->request->post('coinInputSymbol');
+            $data = Exchangelist::find()
+            ->where(['FROMSYMBOL'=>$coinInputSymbol])
+            ->all();
+            return ($data);
+        }
+    }
+
+    public function actionOnlyMarket(){
+        if(Yii::$app->request->post())
+        {   
+            $market = Yii::$app->request->post('MARKET');
+            $data = Exchangelist::find()
+            ->where(['MARKET'=>$market])
+            ->all();
+            return ($data);
+        }
     }
 }

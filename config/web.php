@@ -13,9 +13,13 @@ $config = [
     ],
     'components' => [
         'request' => [
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ],
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'KG4d3CLTpxRyGLtOWBTBimMob-QpWTsk',
         ],
+        
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
@@ -59,6 +63,8 @@ $config = [
              'storeexchangelist' => 'coins-list/store-exchange-list',
              'exchangelist' => 'coins-list/exchange-list',
              'exchangecoin' => 'coins-list/exchange-coin-list',
+             'exchangemarketlist' => 'coins-list/exchange-market-list',
+             'onlymarket' => 'coins-list/only-market',
             //  'tests' => 'tests/make',
             ],
             // 'rules' => [
