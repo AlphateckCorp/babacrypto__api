@@ -185,6 +185,36 @@ class SiteController extends Controller
         $notExists = '';
         
         forEach($decode['Data'] as $key) {
+            $model = Coinlist::find()->where( [ 'Symbol' => $key['Symbol'] ] )->one();
+            $errorCoinID = "57705, 180001, 620037";
+            $leftCoinID = explode(',', $errorCoinID);
+
+            if(!in_array($key['Id'], $leftCoinID)){
+                if($model==null){
+                    $model = new Coinlist();    
+                }
+                    $model->CoinId = $key['Id'];
+                    $model->Symbol = $key['Symbol'];
+                    $model->CoinName = $key['CoinName'];
+                    $model->Url = $key['Url'];
+                    $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+                    $model->Name = $key['Name'];
+                    $model->FullName = $key['FullName'];
+                    $model->Algorithm = $key['Algorithm'];
+                    $model->ProofType = $key['ProofType'];
+                    $model->FullyPremined = $key['FullyPremined'];
+                    $model->TotalCoinSupply = trim($key['TotalCoinSupply']);
+                    $model->PreMinedValue = $key['PreMinedValue'];
+                    $model->TotalCoinsFreeFloat = $key['TotalCoinsFreeFloat'];
+                    $model->SortOrder = $key['SortOrder'];
+                    $model->Sponsored = $key['Sponsored'];
+                    $model->IsTrading = $key['IsTrading'];
+                    $model->save(); 
+            }
+            
+            // print_r($model);
+            /*
+
             $model = new Coinlist();
               $CheckExisting = Coinlist::find()->where( [ 'Symbol' => $key['Symbol'] ] )->exists();
                if($CheckExisting){
@@ -233,17 +263,21 @@ class SiteController extends Controller
                       $exists = 1;
                   }
                 }
+                */
                 
         }
+        
+            // exit;
         // $decodeS = json_decode($coinlistStatus, true);
         //  return $decodeS;
-         if($exists!=''){
-            return 'exits';
-         }else if($notExists!=''){
-           return 'nonExists';
-         }else{
-           return 'nothing';
-         }
+        //  if($exists!=''){
+        //     return 'exits';
+        //  }else if($notExists!=''){
+        //    return 'nonExists';
+        //  }else{
+        //    return 'nothing';
+        //  }
+        return 'done';
                
     }
 
@@ -330,12 +364,12 @@ class SiteController extends Controller
                         $models->TOTALVOLUME24HTO = $ls->TOTALVOLUME24HTO;                       
                         $models->save(); 
                 }
-                
-                
-                
-                
             }
         }
+        
+
+        
+
         return $datas;
     }
 }
