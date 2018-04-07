@@ -62,8 +62,13 @@ $config = [
              'yours' => 'coins-list/your',
              'storeexchangelist' => 'coins-list/store-exchange-list',
              'exchangelist' => 'coins-list/exchange-list',
+
+
              'exchangecoin' => 'coins-list/exchange-coin-list',
              'exchangemarketlist' => 'coins-list/exchange-market-list',
+
+
+             
              'onlymarket' => 'coins-list/only-market',
             //  'tests' => 'tests/make',
             ],

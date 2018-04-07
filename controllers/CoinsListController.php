@@ -349,29 +349,68 @@ class CoinsListController extends ActiveController
     }
    
     public function actionExchangeCoinList(){
+      
         // $check = Yii::$app->request->isPost;
+        // if(Yii::$app->request->post())
+        // {   
+        //     $coinInputSymbol = Yii::$app->request->post('coinInputSymbol');
+        //     $data = Coinlist::find()
+        //     ->where(['symbol'=>$coinInputSymbol])
+        //     ->joinWith(['coinlistinfos'])
+        //     ->asArray()
+        //     ->all();
+        //     return ($data);
+        // }   else{
+        //     return('else');
+        // }
+
+
+
         if(Yii::$app->request->post())
         {   
             $coinInputSymbol = Yii::$app->request->post('coinInputSymbol');
+            $coinName = trim($coinInputSymbol);
+            $coinName = str_replace('_', ' / ', $coinName);
+            $coinName = str_replace('-', ' ', $coinName);
+           
             $data = Coinlist::find()
-            ->where(['symbol'=>$coinInputSymbol])
+            ->where(['CoinName'=>$coinName])
             ->joinWith(['coinlistinfos'])
             ->asArray()
             ->all();
             return ($data);
-        }   else{
-            return('else');
         }
+
+
+
+
     }
     public function actionExchangeMarketList(){
+        // if(Yii::$app->request->post())
+        // {   
+        //     $coinInputSymbol = Yii::$app->request->post('coinInputSymbol');
+        //     $data = Exchangelist::find()
+        //     ->where(['FROMSYMBOL'=>$coinInputSymbol])
+        //     ->all();
+        //     return ($data);
+        // }
         if(Yii::$app->request->post())
         {   
             $coinInputSymbol = Yii::$app->request->post('coinInputSymbol');
+            $coinName = trim($coinInputSymbol);
+            $coinName = str_replace('_', ' / ', $coinName);
+            $coinName = str_replace('-', ' ', $coinName);
+            $market = Coinlist::find()
+            ->where(['CoinName'=>$coinName])
+            ->one();
+           
             $data = Exchangelist::find()
-            ->where(['FROMSYMBOL'=>$coinInputSymbol])
+            ->where(['FROMSYMBOL'=>$market['Symbol']])
             ->all();
+            
             return ($data);
         }
+        
     }
 
     public function actionOnlyMarket(){
