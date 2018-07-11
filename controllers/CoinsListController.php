@@ -2,7 +2,7 @@
 namespace app\controllers;
 use Yii;
 // use yii\web\Controller;
-use app\models\Coinlist;
+use app\models\Currencies;
 use app\models\Coinlistinfo;
 use app\models\Exchangelist;
 use yii\helpers\Json;
@@ -21,16 +21,16 @@ class CoinsListController extends ActiveController
         $decode = json_decode($result, true);
         $topCoins= $decode['DefaultWatchlist']['CoinIs'];
         $coinContentList = [];
-        $data = Coinlist::find()->all();    
+        $data = Currencies::find()->all();    
         
         $url_string = explode(',', $topCoins);
         foreach($url_string as $urls){
-            $dataz[] = Coinlist::find()->where(['CoinId'=> $urls])->asArray()->one();
+            $dataz[] = Currencies::find()->where(['CoinId'=> $urls])->asArray()->one();
         }
         
         foreach($dataz as $datazz){  
             if(in_array($datazz['CoinId'], $url_string)){
-                $coinContentList[] = Coinlist::find()
+                $coinContentList[] = Currencies::find()
                     ->where(['CoinId'=>$datazz['CoinId']])
                     ->joinWith(['coinlistinfos'])
                     ->asArray()
@@ -143,7 +143,7 @@ class CoinsListController extends ActiveController
         $sho= $decode['DefaultWatchlist']['CoinIs'];
         $coinContentList = [];
         $url_string = explode(',', $sho);
-        $data = Coinlist::find()->all();
+        $data = Currencies::find()->all();
         $listSymbols = [];
         $staticListSymbol = "USD,EUR,ETH";
         foreach($data as $datazz){  
@@ -214,8 +214,8 @@ class CoinsListController extends ActiveController
         $notExists = '';
         
         forEach($decode['Data'] as $key) {
-            $model = new Coinlist();
-              $CheckExisting = Coinlist::find()->where( [ 'Symbol' => $key['Symbol'] ] )->exists();
+            $model = new Currencies();
+              $CheckExisting = Currencies::find()->where( [ 'Symbol' => $key['Symbol'] ] )->exists();
                if($CheckExisting){
                   if(!in_array($key['Id'], $leftCoinID, true)){
                     $model->CoinId = $key['Id'];
@@ -373,7 +373,7 @@ class CoinsListController extends ActiveController
             $coinName = str_replace('_', ' / ', $coinName);
             $coinName = str_replace('-', ' ', $coinName);
            
-            $data = Coinlist::find()
+            $data = Currencies::find()
             ->where(['CoinName'=>$coinName])
             ->joinWith(['coinlistinfos'])
             ->asArray()
@@ -400,7 +400,7 @@ class CoinsListController extends ActiveController
             $coinName = trim($coinInputSymbol);
             $coinName = str_replace('_', ' / ', $coinName);
             $coinName = str_replace('-', ' ', $coinName);
-            $market = Coinlist::find()
+            $market = Currencies::find()
             ->where(['CoinName'=>$coinName])
             ->one();
            

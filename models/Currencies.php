@@ -5,7 +5,7 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "coinlist".
+ * This is the model class for table "Currencies".
  *
  * @property int $id
  * @property int $CoinId
@@ -27,14 +27,14 @@ use Yii;
  *
  * @property Coinlistinfo[] $coinlistinfos
  */
-class Coinlist extends \yii\db\ActiveRecord
+class Currencies extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'coinlist';
+        return 'currencies';
     }
 
     /**

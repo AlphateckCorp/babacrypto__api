@@ -5,7 +5,7 @@
 
 namespace app\commands;
 use yii\console\Controller;
-use app\models\Coinlist;
+use app\models\Currencies;
 use app\models\Coinlistinfo;
 use app\models\Exchangelist;
 
@@ -35,7 +35,7 @@ class TestsController extends Controller {
         $sho= $decode['DefaultWatchlist']['CoinIs'];
         $coinContentList = [];
         $url_string = explode(',', $sho);
-        $data = Coinlist::find()->all();
+        $data = Currencies::find()->all();
         $listSymbols = [];
         $staticListSymbol = "USD,EUR,ETH";
         // Yii::$app->db->createCommand()->truncateTable('coinlistinfo')->execute();
