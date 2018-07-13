@@ -9,7 +9,7 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
-use app\models\Coinlist;
+use app\models\Currencies;
 use app\models\Coinlistinfo;
 class SiteController extends Controller
 {
@@ -185,19 +185,19 @@ class SiteController extends Controller
         $notExists = '';
         
         forEach($decode['Data'] as $key) {
-            $model = Coinlist::find()->where( [ 'Symbol' => $key['Symbol'] ] )->one();
+            $model = Currencies::find()->where( [ 'Symbol' => $key['Symbol'] ] )->one();
             $errorCoinID = "57705, 180001, 620037";
             $leftCoinID = explode(',', $errorCoinID);
 
             if(!in_array($key['Id'], $leftCoinID)){
                 if($model==null){
-                    $model = new Coinlist();    
+                    $model = new Currencies();    
                 }
                     $model->CoinId = $key['Id'];
                     $model->Symbol = $key['Symbol'];
                     $model->CoinName = $key['CoinName'];
-                    $model->Url = $key['Url'];
-                    $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+                    // $model->Url = $key['Url'];
+                    // $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
                     $model->Name = $key['Name'];
                     $model->FullName = $key['FullName'];
                     $model->Algorithm = $key['Algorithm'];
@@ -215,15 +215,15 @@ class SiteController extends Controller
             // print_r($model);
             /*
 
-            $model = new Coinlist();
-              $CheckExisting = Coinlist::find()->where( [ 'Symbol' => $key['Symbol'] ] )->exists();
+            $model = new Currencies();
+              $CheckExisting = Currencies::find()->where( [ 'Symbol' => $key['Symbol'] ] )->exists();
                if($CheckExisting){
                   if(!in_array($key['Id'], $leftCoinID, true)){
                     $model->CoinId = $key['Id'];
                     $model->Symbol = $key['Symbol'];
                     $model->CoinName = $key['CoinName'];
-                    $model->Url = $key['Url'];
-                    $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+                    // $model->Url = $key['Url'];
+                    // $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
                     $model->Name = $key['Name'];
                     $model->FullName = $key['FullName'];
                     $model->Algorithm = $key['Algorithm'];
@@ -246,8 +246,8 @@ class SiteController extends Controller
                       $model->CoinId = $key['Id'];
                       $model->Symbol = $key['Symbol'];
                       $model->CoinName = $key['CoinName'];
-                      $model->Url = $key['Url'];
-                      $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+                    //   $model->Url = $key['Url'];
+                    //   $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
                       $model->Name = $key['Name'];
                       $model->FullName = $key['FullName'];
                       $model->Algorithm = $key['Algorithm'];
@@ -299,77 +299,76 @@ class SiteController extends Controller
         
     }
 
-    public function actionFetchs(){
+    // public function actionFetchs(){
 
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $url = 'https://min-api.cryptocompare.com/data/all/coinlist';
-        $result = $this->curlToRestApi('get', $url);
-        $decode = json_decode($result, true);
-        $length = count($decode['Data']);
-        $sho= $decode['DefaultWatchlist']['CoinIs'];
-        $coinContentList = [];
-        $url_string = explode(',', $sho);
-        $data = Coinlist::find()->all();
-        $listSymbols = [];
-        $staticListSymbol = "USD,EUR,ETH";
+    //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+    //     $url = 'https://min-api.cryptocompare.com/data/all/coinlist';
+    //     $result = $this->curlToRestApi('get', $url);
+    //     $decode = json_decode($result, true);
+    //     $length = count($decode['Data']);
+    //     $sho= $decode['DefaultWatchlist']['CoinIs'];
+    //     $coinContentList = [];
+    //     $url_string = explode(',', $sho);
+    //     $data = Currencies::find()->all();
+    //     $listSymbols = [];
+    //     $staticListSymbol = "USD,EUR,ETH";
         
         
-        foreach($data as $datazz){  
-            if(in_array($datazz['CoinId'], $url_string)){
-                // $listSymbols[] = $datazz['Symbol'];
-                $listSymbolz = $datazz['Symbol'];
+    //     foreach($data as $datazz){  
+    //         if(in_array($datazz['CoinId'], $url_string)){
+    //             // $listSymbols[] = $datazz['Symbol'];
+    //             $listSymbolz = $datazz['Symbol'];
                         
-                $datas = json_decode($this->curlToGetPriceApi('get', $datazz->Symbol, $staticListSymbol));
-                $fordata = $datas->RAW->$listSymbolz;
+    //             $datas = json_decode($this->curlToGetPriceApi('get', $datazz->Symbol, $staticListSymbol));
+    //             $fordata = $datas->RAW->$listSymbolz;
                 
-                    
-                    foreach($fordata as $ls){
+    //                 foreach($fordata as $ls){
 
-                        $models = Coinlistinfo::find()
-                        ->where(['CoinInputSymbol' => $datazz['Symbol'], 'TOSYMBOL' => $ls->TOSYMBOL ])
-                        ->one();
-                        if($models==null){
-                            $models = new Coinlistinfo();
-                        } 
-                        $models->CoinlistId = $datazz['id'];
-                        $models->LiveCoinId = $datazz['CoinId'];
-                        $models->CoinInputSymbol = $datazz['Symbol'];
-                        $models->TYPE = $ls->TYPE;
-                        $models->MARKET = $ls->MARKET;
-                        $models->FROMSYMBOL = $ls->FROMSYMBOL;
-                        $models->TOSYMBOL = $ls->TOSYMBOL;
-                        $models->FLAGS = $ls->FLAGS;
-                        $models->PRICE = $ls->PRICE;
-                        $models->LASTUPDATE = $ls->LASTUPDATE;
-                        $models->LASTVOLUME = $ls->LASTVOLUME;
-                        $models->LASTVOLUMETO = $ls->LASTVOLUMETO;
-                        $models->LASTTRADEID = $ls->LASTTRADEID;
-                        $models->VOLUMEDAY = $ls->VOLUMEDAY;
-                        $models->VOLUMEDAYTO = $ls->VOLUMEDAYTO;
-                        $models->VOLUME24HOUR = $ls->VOLUME24HOUR;
-                        $models->VOLUME24HOURTO = $ls->VOLUME24HOURTO;
-                        $models->OPENDAY = $ls->OPENDAY;
-                        $models->HIGHDAY = $ls->HIGHDAY;
-                        $models->LOWDAY = $ls->LOWDAY;
-                        $models->OPEN24HOUR = $ls->OPEN24HOUR;
-                        $models->HIGH24HOUR = $ls->HIGH24HOUR;
-                        $models->LOW24HOUR = $ls->LOW24HOUR;
-                        $models->LASTMARKET = $ls->LASTMARKET;
-                        $models->CHANGE24HOUR = $ls->CHANGE24HOUR;
-                        $models->CHANGEPCT24HOUR = $ls->CHANGEPCT24HOUR;
-                        $models->CHANGEPCTDAY = $ls->CHANGEPCTDAY;
-                        $models->SUPPLY = $ls->SUPPLY;
-                        $models->MKTCAP = $ls->MKTCAP;
-                        $models->TOTALVOLUME24H = $ls->TOTALVOLUME24H;
-                        $models->TOTALVOLUME24HTO = $ls->TOTALVOLUME24HTO;                       
-                        $models->save(); 
-                }
-            }
-        }
+    //                     $models = Coinlistinfo::find()
+    //                     ->where(['CoinInputSymbol' => $datazz['Symbol'], 'TOSYMBOL' => $ls->TOSYMBOL ]) //TODO: check CoinInputSymbol
+    //                     ->one();
+    //                     if($models==null){
+    //                         $models = new Coinlistinfo();
+    //                     } 
+    //                     $models->CoinlistId = $datazz['id'];
+    //                     $models->LiveCoinId = $datazz['CoinId'];
+    //                     // $models->CoinInputSymbol = $datazz['Symbol'];
+    //                     $models->TYPE = $ls->TYPE;
+    //                     $models->MARKET = $ls->MARKET;
+    //                     // $models->FROMSYMBOL = $ls->FROMSYMBOL;
+    //                     $models->TOSYMBOL = $ls->TOSYMBOL;
+    //                     $models->FLAGS = $ls->FLAGS;
+    //                     $models->PRICE = $ls->PRICE;
+    //                     $models->LASTUPDATE = $ls->LASTUPDATE;
+    //                     $models->LASTVOLUME = $ls->LASTVOLUME;
+    //                     $models->LASTVOLUMETO = $ls->LASTVOLUMETO;
+    //                     $models->LASTTRADEID = $ls->LASTTRADEID;
+    //                     $models->VOLUMEDAY = $ls->VOLUMEDAY;
+    //                     $models->VOLUMEDAYTO = $ls->VOLUMEDAYTO;
+    //                     $models->VOLUME24HOUR = $ls->VOLUME24HOUR;
+    //                     $models->VOLUME24HOURTO = $ls->VOLUME24HOURTO;
+    //                     $models->OPENDAY = $ls->OPENDAY;
+    //                     $models->HIGHDAY = $ls->HIGHDAY;
+    //                     $models->LOWDAY = $ls->LOWDAY;
+    //                     $models->OPEN24HOUR = $ls->OPEN24HOUR;
+    //                     $models->HIGH24HOUR = $ls->HIGH24HOUR;
+    //                     $models->LOW24HOUR = $ls->LOW24HOUR;
+    //                     $models->LASTMARKET = $ls->LASTMARKET;
+    //                     $models->CHANGE24HOUR = $ls->CHANGE24HOUR;
+    //                     $models->CHANGEPCT24HOUR = $ls->CHANGEPCT24HOUR;
+    //                     $models->CHANGEPCTDAY = $ls->CHANGEPCTDAY;
+    //                     $models->SUPPLY = $ls->SUPPLY;
+    //                     $models->MKTCAP = $ls->MKTCAP;
+    //                     $models->TOTALVOLUME24H = $ls->TOTALVOLUME24H;
+    //                     $models->TOTALVOLUME24HTO = $ls->TOTALVOLUME24HTO;                       
+    //                     $models->save(); 
+    //             }
+    //         }
+    //     }
         
 
         
 
-        return $datas;
-    }
+    //     return $datas;
+    // }
 }

@@ -28,7 +28,7 @@ class TestsController extends Controller {
         fclose($f);
     }
     public function actionStoreCoinMarket(){
-        $url = 'https://min-api.cryptocompare.com/data/all/coinlist';
+        $url = 'https://www.cryptocompare.com/api/data/coinlist';
         $result = $this->curlToRestApi('get', $url);
         $decode = json_decode($result, true);
         $length = count($decode['Data']);
@@ -48,17 +48,17 @@ class TestsController extends Controller {
                  
                 foreach($fordata as $ls){
                     $models = Coinlistinfo::find()
-                    ->where(['CoinInputSymbol' => $datazz['Symbol'], 'TOSYMBOL' => $ls->TOSYMBOL ])
+                    ->where(['CoinlistId' => $datazz['id'], ]) //DONE:
                     ->one();
                     if($models==null){
                         $models = new Coinlistinfo();
                     } 
                     $models->CoinlistId = $datazz['id'];
                     $models->LiveCoinId = $datazz['CoinId'];
-                    $models->CoinInputSymbol = $datazz['Symbol'];
+                    // $models->CoinInputSymbol = $datazz['Symbol'];
                     $models->TYPE = $ls->TYPE;
                     $models->MARKET = $ls->MARKET;
-                    $models->FROMSYMBOL = $ls->FROMSYMBOL;
+                    // $models->FROMSYMBOL = $ls->FROMSYMBOL;
                     $models->TOSYMBOL = $ls->TOSYMBOL;
                     $models->FLAGS = $ls->FLAGS;
                     $models->PRICE = $ls->PRICE;
@@ -136,9 +136,8 @@ class TestsController extends Controller {
                     }
                     $exchangeList = $decodes['Data']['Exchanges'];
                     foreach($exchangeList as $exlistAll){
-                        
                             $models = Exchangelist::find()
-                              ->where(['FROMSYMBOL' => $exlistAll['FROMSYMBOL'], 
+                              ->where(['FROMSYMBOL' => $exlistAll['FROMSYMBOL'],  //TODO: handle FROMSYMBOL
                                 'MARKET' => $exlistAll['MARKET'],
                                 'TOSYMBOL' => $exlistAll['TOSYMBOL'] ])
                                 ->one();
@@ -150,7 +149,7 @@ class TestsController extends Controller {
                             $models->LiveCoinId = $coinId;                      
                             $models->TYPE = $exlistAll['TYPE'];
                             $models->MARKET = $exlistAll['MARKET'];
-                            $models->FROMSYMBOL = $exlistAll['FROMSYMBOL'];
+                            // $models->FROMSYMBOL = $exlistAll['FROMSYMBOL'];
                             $models->TOSYMBOL = $exlistAll['TOSYMBOL'];
                             $models->FLAGS = $exlistAll['FLAGS'];
                             $models->PRICE = $exlistAll['PRICE'];

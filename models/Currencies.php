@@ -44,7 +44,8 @@ class Currencies extends \yii\db\ActiveRecord
     {
         return [
             [['CoinId', 'SortOrder'], 'integer'],
-            [['Url', 'ImageUrl', 'Name', 'Symbol', 'CoinName', 'FullName', 'Algorithm', 'ProofType', 'FullyPremined', 'TotalCoinSupply', 'PreMinedValue', 'TotalCoinsFreeFloat'], 'string', 'max' => 255],
+            // [['Url', 'ImageUrl', 'Name', 'Symbol', 'CoinName', 'FullName', 'Algorithm', 'ProofType', 'FullyPremined', 'TotalCoinSupply', 'PreMinedValue', 'TotalCoinsFreeFloat'], 'string', 'max' => 255],
+            [['Name', 'Symbol', 'CoinName', 'FullName', 'Algorithm', 'ProofType', 'FullyPremined', 'TotalCoinSupply', 'PreMinedValue', 'TotalCoinsFreeFloat'], 'string', 'max' => 255],
             [['Sponsored', 'IsTrading'], 'string', 'max' => 45],
         ];
     }
@@ -57,8 +58,8 @@ class Currencies extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'CoinId' => 'Coin ID',
-            'Url' => 'Url',
-            'ImageUrl' => 'Image Url',
+            // 'Url' => 'Url',
+            // 'ImageUrl' => 'Image Url',
             'Name' => 'Name',
             'Symbol' => 'Symbol',
             'CoinName' => 'Coin Name',
@@ -80,6 +81,7 @@ class Currencies extends \yii\db\ActiveRecord
      */
     public function getCoinlistinfos()
     {
-        return $this->hasMany(Coinlistinfo::className(), ['LiveCoinId' => 'CoinId']);
+        // return $this->hasOne(Coinlistinfo::className(), ['CoinlistId' => 'id']);
+        return $this->hasMany(Coinlistinfo::className(), ['CoinlistId' => 'id']);
     }
 }

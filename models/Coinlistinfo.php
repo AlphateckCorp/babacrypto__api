@@ -40,7 +40,7 @@ use Yii;
  * @property double $TOTALVOLUME24H
  * @property double $TOTALVOLUME24HTO
  *
- * @property Coinlist $coinlist
+ * @property Currencies $coinlist
  */
 class Coinlistinfo extends \yii\db\ActiveRecord
 {
@@ -61,9 +61,10 @@ class Coinlistinfo extends \yii\db\ActiveRecord
             [['CoinlistId'], 'required'],
             [['CoinlistId', 'LiveCoinId', 'TYPE', 'FLAGS'], 'integer'],
             [['PRICE', 'LASTUPDATE', 'LASTVOLUME', 'LASTVOLUMETO', 'LASTTRADEID', 'VOLUMEDAY', 'VOLUMEDAYTO', 'VOLUME24HOUR', 'VOLUME24HOURTO', 'OPENDAY', 'HIGHDAY', 'LOWDAY', 'OPEN24HOUR', 'HIGH24HOUR', 'LOW24HOUR', 'CHANGE24HOUR', 'CHANGEPCT24HOUR', 'CHANGEPCTDAY', 'SUPPLY', 'MKTCAP', 'TOTALVOLUME24H', 'TOTALVOLUME24HTO'], 'number'],
-            [['CoinInputSymbol'], 'string', 'max' => 45],
-            [['MARKET', 'FROMSYMBOL', 'TOSYMBOL', 'LASTMARKET'], 'string', 'max' => 255],
-            [['CoinlistId'], 'exist', 'skipOnError' => true, 'targetClass' => Coinlist::className(), 'targetAttribute' => ['CoinlistId' => 'id']],
+            // [['CoinInputSymbol'], 'string', 'max' => 45],
+            // [['MARKET', 'FROMSYMBOL', 'TOSYMBOL', 'LASTMARKET'], 'string', 'max' => 255],
+            [['MARKET','TOSYMBOL', 'LASTMARKET'], 'string', 'max' => 255],
+            [['CoinlistId'], 'exist', 'skipOnError' => true, 'targetClass' => Currencies::className(), 'targetAttribute' => ['CoinlistId' => 'id']],
         ];
     }
 
@@ -75,11 +76,11 @@ class Coinlistinfo extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'CoinlistId' => 'Coinlist ID',
-            'CoinInputSymbol' => 'Coin Input Symbol',
+            // 'CoinInputSymbol' => 'Coin Input Symbol',
             'LiveCoinId' => 'Live Coin ID',
             'TYPE' => 'Type',
             'MARKET' => 'Market',
-            'FROMSYMBOL' => 'Fromsymbol',
+            // 'FROMSYMBOL' => 'Fromsymbol',
             'TOSYMBOL' => 'Tosymbol',
             'FLAGS' => 'Flags',
             'PRICE' => 'Price',
@@ -113,6 +114,6 @@ class Coinlistinfo extends \yii\db\ActiveRecord
      */
     // public function getCoinlist()
     // {
-    //     return $this->hasOne(Coinlist::className(), ['id' => 'CoinlistId']);
+    //     return $this->hasOne(Currencies::className(), ['id' => 'CoinlistId']);
     // }
 }

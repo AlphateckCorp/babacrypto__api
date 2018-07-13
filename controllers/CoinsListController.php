@@ -16,7 +16,7 @@ class CoinsListController extends ActiveController
     public function actionYour() {
 
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $url = 'https://min-api.cryptocompare.com/data/all/coinlist';
+        $url = 'https://www.cryptocompare.com/api/data/coinlist';
         $result = $this->curlToRestApi('get', $url);
         $decode = json_decode($result, true);
         $topCoins= $decode['DefaultWatchlist']['CoinIs'];
@@ -42,7 +42,7 @@ class CoinsListController extends ActiveController
         // $query = new yii\db\Query;
         // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         // return new ActiveDataProvider([
-        //     'query' => Coinlist::find()
+        //     'query' => Currencies::find()
         //     ->joinWith(['coinlistinfos'])
         //     // ->with(['coinlistinfos'])
         //     ->asArray()
@@ -54,11 +54,11 @@ class CoinsListController extends ActiveController
     public function actionIndex()
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        // // // $model = new Coinlist();
+        // // // $model = new Currencies();
         // $coinlistData = Coinlistinfo::find()
         // ->all();
 
-        // $query = Coinlist::find()
+        // $query = Currencies::find()
         // ->joinWith(['coinlistinfos'])
         // ->orderBy(['SortOrder' => SORT_ASC])
         // ->limit(10)
@@ -133,6 +133,7 @@ class CoinsListController extends ActiveController
         return $result;
         
     }
+    
     public function actionFetch(){
 
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -158,10 +159,10 @@ class CoinsListController extends ActiveController
                     $models = new Coinlistinfo();
                     $models->CoinlistId = $datazz['id'];
                     $models->LiveCoinId = $datazz['CoinId'];
-                    $models->CoinInputSymbol = $datazz['Symbol'];
+                    // $models->CoinInputSymbol = $datazz['Symbol'];
                     $models->TYPE = $ls->TYPE;
                     $models->MARKET = $ls->MARKET;
-                    $models->FROMSYMBOL = $ls->FROMSYMBOL;
+                    // $models->FROMSYMBOL = $ls->FROMSYMBOL;
                     $models->TOSYMBOL = $ls->TOSYMBOL;
                     $models->FLAGS = $ls->FLAGS;
                     $models->PRICE = $ls->PRICE;
@@ -221,8 +222,8 @@ class CoinsListController extends ActiveController
                     $model->CoinId = $key['Id'];
                     $model->Symbol = $key['Symbol'];
                     $model->CoinName = $key['CoinName'];
-                    $model->Url = $key['Url'];
-                    $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+                    // $model->Url = $key['Url'];
+                    // $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
                     $model->Name = $key['Name'];
                     $model->FullName = $key['FullName'];
                     $model->Algorithm = $key['Algorithm'];
@@ -244,8 +245,8 @@ class CoinsListController extends ActiveController
                       $model->CoinId = $key['Id'];
                       $model->Symbol = $key['Symbol'];
                       $model->CoinName = $key['CoinName'];
-                      $model->Url = $key['Url'];
-                      $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+                    //   $model->Url = $key['Url'];
+                    //   $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
                       $model->Name = $key['Name'];
                       $model->FullName = $key['FullName'];
                       $model->Algorithm = $key['Algorithm'];
@@ -278,6 +279,7 @@ class CoinsListController extends ActiveController
     public function extraFields() {
         return ['coinlistinfos'];
     }
+
     public function actionStoreExchangeList(){
         $url = "https://min-api.cryptocompare.com/data/all/exchanges";
         $result = $this->curlToRestApi('get', $url);
@@ -296,9 +298,8 @@ class CoinsListController extends ActiveController
                     }
                     $exchangeList = $decodes['Data']['Exchanges'];
                     foreach($exchangeList as $exlistAll){
-                        
                             $models = Exchangelist::find()
-                              ->where(['FROMSYMBOL' => $exlistAll['FROMSYMBOL'], 
+                              ->where(['FROMSYMBOL' => $exlistAll['FROMSYMBOL'], //TODO: handle FROMSYMBOl
                                 'MARKET' => $exlistAll['MARKET'],
                                 'TOSYMBOL' => $exlistAll['TOSYMBOL'] ])
                                 ->one();
@@ -310,7 +311,7 @@ class CoinsListController extends ActiveController
                             $models->LiveCoinId = $coinId;                      
                             $models->TYPE = $exlistAll['TYPE'];
                             $models->MARKET = $exlistAll['MARKET'];
-                            $models->FROMSYMBOL = $exlistAll['FROMSYMBOL'];
+                            // $models->FROMSYMBOL = $exlistAll['FROMSYMBOL'];
                             $models->TOSYMBOL = $exlistAll['TOSYMBOL'];
                             $models->FLAGS = $exlistAll['FLAGS'];
                             $models->PRICE = $exlistAll['PRICE'];
@@ -354,7 +355,7 @@ class CoinsListController extends ActiveController
         // if(Yii::$app->request->post())
         // {   
         //     $coinInputSymbol = Yii::$app->request->post('coinInputSymbol');
-        //     $data = Coinlist::find()
+        //     $data = Currencies::find()
         //     ->where(['symbol'=>$coinInputSymbol])
         //     ->joinWith(['coinlistinfos'])
         //     ->asArray()
@@ -368,6 +369,7 @@ class CoinsListController extends ActiveController
 
         if(Yii::$app->request->post())
         {   
+            //TODO: Handle coinInputSymbol
             $coinInputSymbol = Yii::$app->request->post('coinInputSymbol');
             $coinName = trim($coinInputSymbol);
             $coinName = str_replace('_', ' / ', $coinName);
@@ -396,6 +398,7 @@ class CoinsListController extends ActiveController
         // }
         if(Yii::$app->request->post())
         {   
+            //TODO: Handle coinInputSymbol
             $coinInputSymbol = Yii::$app->request->post('coinInputSymbol');
             $coinName = trim($coinInputSymbol);
             $coinName = str_replace('_', ' / ', $coinName);
@@ -404,6 +407,7 @@ class CoinsListController extends ActiveController
             ->where(['CoinName'=>$coinName])
             ->one();
            
+            //TODO: Handle FROMSYMBOL
             $data = Exchangelist::find()
             ->where(['FROMSYMBOL'=>$market['Symbol']])
             ->all();
