@@ -8,6 +8,7 @@ use yii\console\Controller;
 use app\models\Currencies;
 use app\models\Coinlistinfo;
 use app\models\Exchangelist;
+use app\helpers\CryptoCoins;
 
 use Yii;
 /**
@@ -28,9 +29,8 @@ class TestsController extends Controller {
         fclose($f);
     }
     public function actionStoreCoinMarket(){
-        $url = 'https://www.cryptocompare.com/api/data/coinlist';
-        $result = $this->curlToRestApi('get', $url);
-        $decode = json_decode($result, true);
+        $cryptoCoins = new CryptoCoins();
+        $decode = $cryptoCoins->getList();
         $length = count($decode['Data']);
         $sho= $decode['DefaultWatchlist']['CoinIs'];
         $coinContentList = [];
@@ -43,7 +43,9 @@ class TestsController extends Controller {
         foreach($data as $datazz){  
             if(in_array($datazz['CoinId'], $url_string)){
                 $listSymbolz = $datazz['Symbol'];
-                $datas = json_decode($this->curlToGetPriceApi('get', $datazz->Symbol, $staticListSymbol));
+                // $datas = json_decode($this->curlToGetPriceApi('get', $datazz->Symbol, $staticListSymbol));
+                $cryptoCoins = new CryptoCoins();
+                $datas = $cryptoCoins->getPrice($datazz->Symbol, $staticListSymbol);
                 $fordata = $datas->RAW->$listSymbolz;
                  
                 foreach($fordata as $ls){
@@ -91,44 +93,52 @@ class TestsController extends Controller {
        
     }
 
-    public function curlToRestApi($method, $url, $data = null)
-    {
+    //NOTE: commented not used now
+    
+    // public function curlToRestApi($method, $url, $data = null)
+    // {
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    //     $curl = curl_init();
+    //     curl_setopt($curl, CURLOPT_URL, $url);
+    //     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
-        $result = curl_exec($curl);
-        curl_close($curl);
-        return $result;
-    }
+    //     $result = curl_exec($curl);
+    //     curl_close($curl);
+    //     return $result;
+    // }
+
+    //NOTE: commented not used now
  
-    public function curlToGetPriceApi($method, $symbol, $endpoint, $data = null)
-    {           
-        // $url = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=".$symbol."&tsyms=BTC,USD,EUR";
-        $url = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=".$symbol."&tsyms=".$endpoint;
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    // public function curlToGetPriceApi($method, $symbol, $endpoint, $data = null)
+    // {           
+    //     // $url = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=".$symbol."&tsyms=BTC,USD,EUR";
+    //     $url = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=".$symbol."&tsyms=".$endpoint;
+    //     $curl = curl_init();
+    //     curl_setopt($curl, CURLOPT_URL, $url);
+    //     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
-        $result = curl_exec($curl);
+    //     $result = curl_exec($curl);
         
-        curl_close($curl);
-        return $result;
+    //     curl_close($curl);
+    //     return $result;
         
-    }
+    // }
 
     public function actionStoreExchange(){
-        $url = "https://min-api.cryptocompare.com/data/all/exchanges";
-        $result = $this->curlToRestApi('get', $url);
-        $decode = json_decode($result, true);
+        // $url = "https://min-api.cryptocompare.com/data/all/exchanges";
+        // $result = $this->curlToRestApi('get', $url);
+        // $decode = json_decode($result, true);
+        $cryptoCoins = new CryptoCoins();
+        $decode = $cryptoCoins->getExchanges();
         $checkList = ($decode['Cryptsy']);
         foreach($checkList as $key => $value){
                 foreach($value as $ls)
                 {
-                    $urls="https://min-api.cryptocompare.com/data/top/exchanges/full?fsym=".$key."&tsym=".$ls;
-                    $results = $this->curlToRestApi('get', $urls);
-                    $decodes = json_decode($results, true);
+                    // $urls="https://min-api.cryptocompare.com/data/top/exchanges/full?fsym=".$key."&tsym=".$ls;
+                    // $results = $this->curlToRestApi('get', $urls);
+                    // $decodes = json_decode($results, true);
+                    $cryptoCoins = new CryptoCoins();
+                    $decodes = $cryptoCoins->getTopExchanges($key, $ls);
                     $counts = count($decodes['Data']['CoinInfo']);
                     $coinId='';
                     if($counts>0){

@@ -11,6 +11,8 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\Currencies;
 use app\models\Coinlistinfo;
+use app\helpers\CryptoCoins;
+
 class SiteController extends Controller
 {
     
@@ -66,43 +68,45 @@ class SiteController extends Controller
         return $this->render('index');
     }
 
-    public function curlToRestApi($method, $url, $data = null)
-    {
+    // NOTE: commented not used now
 
-        $curl = curl_init();
+    // public function curlToRestApi($method, $url, $data = null)
+    // {
 
-        // switch $method
-        switch ($method) {
-            case 'POST':
-                curl_setopt($curl, CURLOPT_POST, 1);
+    //     $curl = curl_init();
 
-                if($data !== null) {
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-                }
-                break;
-                // logic for other methods of interest
-                // .
-                // .
-                // .
+    //     // switch $method
+    //     switch ($method) {
+    //         case 'POST':
+    //             curl_setopt($curl, CURLOPT_POST, 1);
 
-            default:
-                if ($data !== null){
-                    $url = sprintf("%s?%s", $url, http_build_query($data));
-                }
-        }
+    //             if($data !== null) {
+    //                 curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+    //             }
+    //             break;
+    //             // logic for other methods of interest
+    //             // .
+    //             // .
+    //             // .
 
-        // Authentication [Optional]
-        // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        // curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    //         default:
+    //             if ($data !== null){
+    //                 $url = sprintf("%s?%s", $url, http_build_query($data));
+    //             }
+    //     }
 
-        $result = curl_exec($curl);
+    //     // Authentication [Optional]
+    //     // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    //     // curl_setopt($curl, CURLOPT_USERPWD, "username:password");
+    //     curl_setopt($curl, CURLOPT_URL, $url);
+    //     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
-        curl_close($curl);
+    //     $result = curl_exec($curl);
 
-        return $result;
-    }
+    //     curl_close($curl);
+
+    //     return $result;
+    // }
 
     /**
      * Login action.
@@ -169,9 +173,11 @@ class SiteController extends Controller
     public function actionStoreCoins(){
         
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $url = 'https://min-api.cryptocompare.com/data/all/coinlist';
-        $result = $this->curlToRestApi('get', $url);
-        $decode = json_decode($result, true);
+        // $url = 'https://min-api.cryptocompare.com/data/all/coinlist';
+        // $result = $this->curlToRestApi('get', $url);
+        // $decode = json_decode($result, true);
+        $cryptoCoins = new CryptoCoins();
+        $decode = $cryptoCoins->getList();
         $length = count($decode['Data']);
         $sho= $decode['DefaultWatchlist']['CoinIs'];
         $coinContentList = [];
@@ -281,23 +287,24 @@ class SiteController extends Controller
                
     }
 
+    //NOTE: commented not used now
+    
+    // public function curlToGetPriceApi($method, $symbol, $endpoint, $data = null)
+    // {           
+    //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+    //     // $url = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=".$symbol."&tsyms=BTC,USD,EUR";
+    //     $url = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=".$symbol."&tsyms=".$endpoint;
+    //     $curl = curl_init();
+    //     curl_setopt($curl, CURLOPT_URL, $url);
+    //     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
-    public function curlToGetPriceApi($method, $symbol, $endpoint, $data = null)
-    {           
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+    //     $result = curl_exec($curl);
         
-        // $url = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=".$symbol."&tsyms=BTC,USD,EUR";
-        $url = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=".$symbol."&tsyms=".$endpoint;
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
-        $result = curl_exec($curl);
+    //     curl_close($curl);
+    //     return $result;
         
-        curl_close($curl);
-        return $result;
-        
-    }
+    // }
 
     // public function actionFetchs(){
 
