@@ -201,84 +201,97 @@ class CoinsListController extends ActiveController
     //     return $datas;
     // }
 
-    public function actionStoreCoin(){
+    //NOTE: not used now
+    
+    // public function actionStoreCoin(){
         
-        // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $cryptoCoins = new CryptoCoins();
-        $decode = $cryptoCoins->getList();
-        $length = count($decode['Data']);
-        $sho= $decode['DefaultWatchlist']['CoinIs'];
-        $coinContentList = [];
-        $url_string = explode(',', $sho);
+    //     // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+    //     $cryptoCoins = new CryptoCoins();
+    //     $decode = $cryptoCoins->getList();
+    //     $length = count($decode['Data']);
+    //     $sho= $decode['DefaultWatchlist']['CoinIs'];
+    //     $coinContentList = [];
+    //     $url_string = explode(',', $sho);
         
-        // $urls = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=ETH&tsyms=BTC,USD,EUR";
-        // $marketList = $this->curlToGetPriceApi('get', 'ETH');
-        // $decodeS = json_decode($marketList, true);
-        $marketList=[];
-        $exists = '';
-        $notExists = '';
+    //     // $urls = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=ETH&tsyms=BTC,USD,EUR";
+    //     // $marketList = $this->curlToGetPriceApi('get', 'ETH');
+    //     // $decodeS = json_decode($marketList, true);
+    //     $marketList = [];
+    //     $exists = '';
+    //     $notExists = '';
         
-        forEach($decode['Data'] as $key) {
-            $model = new Currencies();
-              $CheckExisting = Currencies::find()->where( [ 'Symbol' => $key['Symbol'] ] )->exists();
-               if($CheckExisting){
-                  if(!in_array($key['Id'], $leftCoinID, true)){
-                    $model->CoinId = $key['Id'];
-                    $model->Symbol = $key['Symbol'];
-                    $model->CoinName = $key['CoinName'];
-                    // $model->Url = $key['Url'];
-                    // $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
-                    $model->Name = $key['Name'];
-                    $model->FullName = $key['FullName'];
-                    $model->Algorithm = $key['Algorithm'];
-                    $model->ProofType = $key['ProofType'];
-                    $model->FullyPremined = $key['FullyPremined'];
-                    $model->TotalCoinSupply = trim($key['TotalCoinSupply']);
-                    $model->PreMinedValue = $key['PreMinedValue'];
-                    $model->TotalCoinsFreeFloat = $key['TotalCoinsFreeFloat'];
-                    $model->SortOrder = $key['SortOrder'];
-                    $model->Sponsored = $key['Sponsored'];
-                    $model->IsTrading = $key['IsTrading'];
-                    $model->save(); 
-                    $notExists=1;
-                  }
-                } else {
-                  $errorCoinID = "57705, 180001, 620037";
-                  $leftCoinID = explode(',', $errorCoinID);
-                  if(!in_array($key['Id'], $leftCoinID)){
-                      $model->CoinId = $key['Id'];
-                      $model->Symbol = $key['Symbol'];
-                      $model->CoinName = $key['CoinName'];
-                    //   $model->Url = $key['Url'];
-                    //   $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
-                      $model->Name = $key['Name'];
-                      $model->FullName = $key['FullName'];
-                      $model->Algorithm = $key['Algorithm'];
-                      $model->ProofType = $key['ProofType'];
-                      $model->FullyPremined = $key['FullyPremined'];
-                      $model->TotalCoinSupply = trim($key['TotalCoinSupply']);
-                      $model->PreMinedValue = $key['PreMinedValue'];
-                      $model->TotalCoinsFreeFloat = $key['TotalCoinsFreeFloat'];
-                      $model->SortOrder = $key['SortOrder'];
-                      $model->Sponsored = $key['Sponsored'];
-                      $model->IsTrading = $key['IsTrading'];
-                      $model->save(); 
-                      $exists = 1;
-                  }
-                }
+    //     forEach($decode['Data'] as $key) {
+    //         $model = new Currencies();
+    //           $CheckExisting = Currencies::find()->where( [ 'Symbol' => $key['Symbol'] ] )->exists();
+    //            if($CheckExisting){
+    //               if(!in_array($key['Id'], $leftCoinID, true)){
+    //                 $model->CoinId = $key['Id'];
+    //                 $model->Symbol = $key['Symbol'];
+    //                 $model->CoinName = $key['CoinName'];
+    //                 // $model->Url = $key['Url'];
+    //                 echo Yii::$app->basePath;exit;
+    //                 $imageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+    //                 if(!empty($imageUrl)) {
+    //                     file_put_contents($img, file_get_contents($imageUrl));
+    //                 }
+
+    //                 $model->Name = $key['Name'];
+    //                 $model->FullName = $key['FullName'];
+    //                 $model->Algorithm = $key['Algorithm'];
+    //                 $model->ProofType = $key['ProofType'];
+    //                 $model->FullyPremined = $key['FullyPremined'];
+    //                 $model->TotalCoinSupply = trim($key['TotalCoinSupply']);
+    //                 $model->PreMinedValue = $key['PreMinedValue'];
+    //                 $model->TotalCoinsFreeFloat = $key['TotalCoinsFreeFloat'];
+    //                 $model->SortOrder = $key['SortOrder'];
+    //                 $model->Sponsored = $key['Sponsored'];
+    //                 $model->IsTrading = $key['IsTrading'];
+    //                 $model->save(); 
+    //                 $notExists=1;
+    //               }
+    //             } else {
+    //               $errorCoinID = "57705, 180001, 620037";
+    //               $leftCoinID = explode(',', $errorCoinID);
+    //               if(!in_array($key['Id'], $leftCoinID)){
+    //                   $model->CoinId = $key['Id'];
+    //                   $model->Symbol = $key['Symbol'];
+    //                   $model->CoinName = $key['CoinName'];
+    //                 //   $model->Url = $key['Url'];
+    //                 //   $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+    //                 echo Yii::$app->basePath;exit;
+    //                 $imageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+    //                 if(!empty($imageUrl)) {
+    //                     file_put_contents($img, file_get_contents($imageUrl));
+    //                 }
+
+    //                   $model->Name = $key['Name'];
+    //                   $model->FullName = $key['FullName'];
+    //                   $model->Algorithm = $key['Algorithm'];
+    //                   $model->ProofType = $key['ProofType'];
+    //                   $model->FullyPremined = $key['FullyPremined'];
+    //                   $model->TotalCoinSupply = trim($key['TotalCoinSupply']);
+    //                   $model->PreMinedValue = $key['PreMinedValue'];
+    //                   $model->TotalCoinsFreeFloat = $key['TotalCoinsFreeFloat'];
+    //                   $model->SortOrder = $key['SortOrder'];
+    //                   $model->Sponsored = $key['Sponsored'];
+    //                   $model->IsTrading = $key['IsTrading'];
+    //                   $model->save(); 
+    //                   $exists = 1;
+    //               }
+    //             }
                 
-        }
-        // $decodeS = json_decode($coinlistStatus, true);
-        //  return $decodeS;
-         if($exists!=''){
-            return 'exits';
-         }else if($notExists!=''){
-           return 'nonExists';
-         }else{
-           return 'nothing';
-         }
+    //     }
+    //     // $decodeS = json_decode($coinlistStatus, true);
+    //     //  return $decodeS;
+    //      if($exists!=''){
+    //         return 'exits';
+    //      }else if($notExists!=''){
+    //        return 'nonExists';
+    //      }else{
+    //        return 'nothing';
+    //      }
                
-    }
+    // }
 
     public function extraFields() {
         return ['coinlistinfos'];

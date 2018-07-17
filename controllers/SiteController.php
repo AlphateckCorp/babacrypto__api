@@ -196,14 +196,22 @@ class SiteController extends Controller
             $leftCoinID = explode(',', $errorCoinID);
 
             if(!in_array($key['Id'], $leftCoinID)){
-                if($model==null){
-                    $model = new Currencies();    
-                }
+                    if($model==null){
+                        $model = new Currencies();    
+                    }
                     $model->CoinId = $key['Id'];
                     $model->Symbol = $key['Symbol'];
                     $model->CoinName = $key['CoinName'];
                     // $model->Url = $key['Url'];
                     // $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+                    // echo Yii::$app->basePath.'/web/upload';exit;
+                    $imageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+                    if(!empty($imageUrl)) {
+                        $ext = pathinfo('https://www.cryptocompare.com'.$imageUrl,PATHINFO_EXTENSION);
+                        if(!file_exists(Yii::$app->basePath.'/web/uploads/'.$key['Name'].'.'.$ext)) {
+                            file_put_contents(Yii::$app->basePath.'/web/uploads/'.$key['Name'].'.'.$ext, file_get_contents('https://www.cryptocompare.com'.$imageUrl) );
+                        }
+                    }
                     $model->Name = $key['Name'];
                     $model->FullName = $key['FullName'];
                     $model->Algorithm = $key['Algorithm'];
@@ -214,7 +222,7 @@ class SiteController extends Controller
                     $model->TotalCoinsFreeFloat = $key['TotalCoinsFreeFloat'];
                     $model->SortOrder = $key['SortOrder'];
                     $model->Sponsored = $key['Sponsored'];
-                    $model->IsTrading = $key['IsTrading'];
+                    // $model->IsTrading = $key['IsTrading'];
                     $model->save(); 
             }
             
