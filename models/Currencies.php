@@ -46,7 +46,8 @@ class Currencies extends \yii\db\ActiveRecord
             [['CoinId', 'SortOrder'], 'integer'],
             // [['Url', 'ImageUrl', 'Name', 'Symbol', 'CoinName', 'FullName', 'Algorithm', 'ProofType', 'FullyPremined', 'TotalCoinSupply', 'PreMinedValue', 'TotalCoinsFreeFloat'], 'string', 'max' => 255],
             [['Name', 'Symbol', 'CoinName', 'FullName', 'Algorithm', 'ProofType', 'FullyPremined', 'TotalCoinSupply', 'PreMinedValue', 'TotalCoinsFreeFloat'], 'string', 'max' => 255],
-            [['Sponsored', 'IsTrading'], 'string', 'max' => 45],
+            // [['Sponsored', 'IsTrading'], 'string', 'max' => 45],
+            [['Sponsored'], 'boolean'],
         ];
     }
 

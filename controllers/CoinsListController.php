@@ -21,23 +21,23 @@ class CoinsListController extends ActiveController
         $decode = $cryptoCoins->getList();
         $topCoins = $decode['DefaultWatchlist']['CoinIs'];
         $coinContentList = [];
-        $data = Currencies::find()->all();
+        // $data = Currencies::find()->all();
         
         $url_string = explode(',', $topCoins);
         foreach($url_string as $urls){
-            $dataz[] = Currencies::find()->where(['CoinId'=> $urls])->asArray()->one();
+            $dataz[] = Currencies::find()->where(['CoinId'=> $urls])->joinWith(['coinlistinfos'])->asArray()->one();
         }
         
-        foreach($dataz as $datazz){
-            if(in_array($datazz['CoinId'], $url_string)){
-                $coinContentList[] = Currencies::find()
-                    ->where(['CoinId'=>$datazz['CoinId']])
-                    ->joinWith(['coinlistinfos'])
-                    ->asArray()
-                    ->one();
-            }
-        }    
-        return $coinContentList;
+        // foreach($dataz as $datazz){
+        //     if(in_array($datazz['CoinId'], $url_string)){
+        //         $coinContentList[] = Currencies::find()
+        //             ->where(['CoinId'=>$datazz['CoinId']])
+        //             ->joinWith(['coinlistinfos'])
+        //             ->asArray()
+        //             ->one();
+        //     }
+        // }    
+        return  $dataz;
 
         // $query = new yii\db\Query;
         // \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -297,61 +297,61 @@ class CoinsListController extends ActiveController
         return ['coinlistinfos'];
     }
 
-    public function actionStoreExchangeList(){
-        $cryptoCoins = new CryptoCoins();
-        $decode = $cryptoCoins->getExchanges();
-        $checkList = ($decode['Cryptsy']);
-        foreach($checkList as $key => $value){
-                foreach($value as $ls)
-                {
-                    $cryptoCoins = new CryptoCoins();
-                    $decodes = $cryptoCoins->getTopExchanges($key, $ls);
-                    // $urls="https://min-api.cryptocompare.com/data/top/exchanges/full?fsym=".$key."&tsym=".$ls;
-                    // $results = $this->curlToRestApi('get', $urls);
-                    // $decodes = json_decode($results, true);
-                    $counts = count($decodes['Data']['CoinInfo']);
-                    $coinId='';
-                    if($counts>0){
-                        $coinId= $decodes['Data']['CoinInfo']['Id'];
-                    }
-                    $exchangeList = $decodes['Data']['Exchanges'];
-                    foreach($exchangeList as $exlistAll){
-                            $models = Exchangelist::find()
-                              ->where(['FROMSYMBOL' => $exlistAll['FROMSYMBOL'], //TODO: handle FROMSYMBOl
-                                'MARKET' => $exlistAll['MARKET'],
-                                'TOSYMBOL' => $exlistAll['TOSYMBOL'] ])
-                                ->one();
+    // public function actionStoreExchangeList(){
+    //     $cryptoCoins = new CryptoCoins();
+    //     $decode = $cryptoCoins->getExchanges();
+    //     $checkList = ($decode['Cryptsy']);
+    //     foreach($checkList as $key => $value){
+    //             foreach($value as $ls)
+    //             {
+    //                 $cryptoCoins = new CryptoCoins();
+    //                 $decodes = $cryptoCoins->getTopExchanges($key, $ls);
+    //                 // $urls="https://min-api.cryptocompare.com/data/top/exchanges/full?fsym=".$key."&tsym=".$ls;
+    //                 // $results = $this->curlToRestApi('get', $urls);
+    //                 // $decodes = json_decode($results, true);
+    //                 $counts = count($decodes['Data']['CoinInfo']);
+    //                 $coinId='';
+    //                 if($counts>0){
+    //                     $coinId= $decodes['Data']['CoinInfo']['Id'];
+    //                 }
+    //                 $exchangeList = $decodes['Data']['Exchanges'];
+    //                 foreach($exchangeList as $exlistAll){
+    //                         $models = Exchangelist::find()
+    //                           ->where(['FROMSYMBOL' => $exlistAll['FROMSYMBOL'], //TODO: handle FROMSYMBOl
+    //                             'MARKET' => $exlistAll['MARKET'],
+    //                             'TOSYMBOL' => $exlistAll['TOSYMBOL'] ])
+    //                             ->one();
                         
-                            if($models==null){
-                                $models = new Exchangelist();
-                            } 
+    //                         if($models==null){
+    //                             $models = new Exchangelist();
+    //                         } 
 
-                            $models->LiveCoinId = $coinId;                      
-                            $models->TYPE = $exlistAll['TYPE'];
-                            $models->MARKET = $exlistAll['MARKET'];
-                            // $models->FROMSYMBOL = $exlistAll['FROMSYMBOL'];
-                            $models->TOSYMBOL = $exlistAll['TOSYMBOL'];
-                            $models->FLAGS = $exlistAll['FLAGS'];
-                            $models->PRICE = $exlistAll['PRICE'];
-                            $models->LASTUPDATE = $exlistAll['LASTUPDATE'];
-                            $models->LASTVOLUME = $exlistAll['LASTVOLUME'];
-                            $models->LASTVOLUMETO = $exlistAll['LASTVOLUMETO'];
-                            $models->LASTTRADEID = $exlistAll['LASTTRADEID'];
-                            $models->VOLUME24HOUR = $exlistAll['VOLUME24HOUR'] ;
-                            $models->VOLUME24HOURTO = $exlistAll['VOLUME24HOURTO'];
-                            $models->OPEN24HOUR = $exlistAll['OPEN24HOUR'];
-                            $models->HIGH24HOUR = $exlistAll['HIGH24HOUR'];
-                            $models->LOW24HOUR = $exlistAll['LOW24HOUR'];
-                            $models->CHANGE24HOUR = $exlistAll['CHANGE24HOUR'];
-                            $models->CHANGEPCT24HOUR = $exlistAll['CHANGEPCT24HOUR'];
-                            $models->CHANGEPCTDAY = $exlistAll['CHANGEPCTDAY'];
-                            $models->CHANGEDAY = $exlistAll['CHANGEDAY'];
-                            $models->save(false);
-                    }
-            }
-        }
-        return ('done');
-    }
+    //                         $models->LiveCoinId = $coinId;                      
+    //                         $models->TYPE = $exlistAll['TYPE'];
+    //                         $models->MARKET = $exlistAll['MARKET'];
+    //                         // $models->FROMSYMBOL = $exlistAll['FROMSYMBOL'];
+    //                         $models->TOSYMBOL = $exlistAll['TOSYMBOL'];
+    //                         $models->FLAGS = $exlistAll['FLAGS'];
+    //                         $models->PRICE = $exlistAll['PRICE'];
+    //                         $models->LASTUPDATE = $exlistAll['LASTUPDATE'];
+    //                         $models->LASTVOLUME = $exlistAll['LASTVOLUME'];
+    //                         $models->LASTVOLUMETO = $exlistAll['LASTVOLUMETO'];
+    //                         $models->LASTTRADEID = $exlistAll['LASTTRADEID'];
+    //                         $models->VOLUME24HOUR = $exlistAll['VOLUME24HOUR'] ;
+    //                         $models->VOLUME24HOURTO = $exlistAll['VOLUME24HOURTO'];
+    //                         $models->OPEN24HOUR = $exlistAll['OPEN24HOUR'];
+    //                         $models->HIGH24HOUR = $exlistAll['HIGH24HOUR'];
+    //                         $models->LOW24HOUR = $exlistAll['LOW24HOUR'];
+    //                         $models->CHANGE24HOUR = $exlistAll['CHANGE24HOUR'];
+    //                         $models->CHANGEPCT24HOUR = $exlistAll['CHANGEPCT24HOUR'];
+    //                         $models->CHANGEPCTDAY = $exlistAll['CHANGEPCTDAY'];
+    //                         $models->CHANGEDAY = $exlistAll['CHANGEDAY'];
+    //                         $models->save(false);
+    //                 }
+    //         }
+    //     }
+    //     return ('done');
+    // }
 
     //NOTE: commented not used now
 

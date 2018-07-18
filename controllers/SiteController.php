@@ -10,8 +10,10 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\Currencies;
+use app\models\Exchangelist;
 use app\models\Coinlistinfo;
 use app\helpers\CryptoCoins;
+use app\models\Exchanges;
 
 class SiteController extends Controller
 {
@@ -170,7 +172,7 @@ class SiteController extends Controller
         return $this->render('about');
     }
 
-    public function actionStoreCoins(){
+    public function actionStoreCoins() {
         
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         // $url = 'https://min-api.cryptocompare.com/data/all/coinlist';
@@ -179,9 +181,9 @@ class SiteController extends Controller
         $cryptoCoins = new CryptoCoins();
         $decode = $cryptoCoins->getList();
         $length = count($decode['Data']);
-        $sho= $decode['DefaultWatchlist']['CoinIs'];
+        // $sho= $decode['DefaultWatchlist']['CoinIs'];
         $coinContentList = [];
-        $url_string = explode(',', $sho);
+        // $url_string = explode(',', $sho);
         
         // $urls = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=ETH&tsyms=BTC,USD,EUR";
         // $marketList = $this->curlToGetPriceApi('get', 'ETH');
@@ -191,27 +193,29 @@ class SiteController extends Controller
         $notExists = '';
         
         forEach($decode['Data'] as $key) {
-            $model = Currencies::find()->where( [ 'Symbol' => $key['Symbol'] ] )->one();
+            $model = Currencies::find()->where( [ 'CoinId' => $key['Id'] ] )->one();
             $errorCoinID = "57705, 180001, 620037";
             $leftCoinID = explode(',', $errorCoinID);
 
             if(!in_array($key['Id'], $leftCoinID)){
-                    if($model==null){
-                        $model = new Currencies();    
-                    }
+                if($model==null){
+                    $model = new Currencies();    
+                }
+                $transaction = Currencies::getDb()->beginTransaction();
+                try {
                     $model->CoinId = $key['Id'];
                     $model->Symbol = $key['Symbol'];
                     $model->CoinName = $key['CoinName'];
                     // $model->Url = $key['Url'];
                     // $model->ImageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
                     // echo Yii::$app->basePath.'/web/upload';exit;
-                    $imageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
-                    if(!empty($imageUrl)) {
-                        $ext = pathinfo('https://www.cryptocompare.com'.$imageUrl,PATHINFO_EXTENSION);
-                        if(!file_exists(Yii::$app->basePath.'/web/uploads/'.$key['Name'].'.'.$ext)) {
-                            file_put_contents(Yii::$app->basePath.'/web/uploads/'.$key['Name'].'.'.$ext, file_get_contents('https://www.cryptocompare.com'.$imageUrl) );
-                        }
-                    }
+                    // $imageUrl = (isset($key['ImageUrl'])? trim($key['ImageUrl']):'');
+                    // if(!empty($imageUrl)) {
+                    //     $ext = pathinfo('https://www.cryptocompare.com'.$imageUrl,PATHINFO_EXTENSION);
+                    //     if(!file_exists(Yii::$app->basePath.'/web/uploads/'.$key['Name'].'.'.$ext)) {
+                    //         file_put_contents(Yii::$app->basePath.'/web/uploads/'.$key['Name'].'.'.$ext, file_get_contents('https://www.cryptocompare.com'.$imageUrl) );
+                    //     }
+                    // }
                     $model->Name = $key['Name'];
                     $model->FullName = $key['FullName'];
                     $model->Algorithm = $key['Algorithm'];
@@ -223,7 +227,16 @@ class SiteController extends Controller
                     $model->SortOrder = $key['SortOrder'];
                     $model->Sponsored = $key['Sponsored'];
                     // $model->IsTrading = $key['IsTrading'];
-                    $model->save(); 
+                    $model->save();
+                    // ...other DB operations...
+                    $transaction->commit();
+                } catch(\Exception $e) {
+                    $transaction->rollBack();
+                    throw $e;
+                } catch(\Throwable $e) {
+                    $transaction->rollBack();
+                    throw $e;
+                }
             }
             
             // print_r($model);
@@ -293,6 +306,185 @@ class SiteController extends Controller
         //  }
         return 'done';
                
+    }
+
+    public function actionStoreCoinMarket(){
+        $cryptoCoins = new CryptoCoins();
+        $decode = $cryptoCoins->getList();
+        $length = count($decode['Data']);
+        // $sho= $decode['DefaultWatchlist']['CoinIs'];
+        $coinContentList = [];
+        // $url_string = explode(',', $sho);
+        $data = Currencies::find()->all();
+        $listSymbols = [];
+        $staticListSymbol = "USD,EUR,ETH";
+        // Yii::$app->db->createCommand()->truncateTable('coinlistinfo')->execute();
+        
+        foreach($data as $datazz){  
+            // if(in_array($datazz['CoinId'], $url_string)){
+                $listSymbolz = $datazz['Symbol'];
+                // $datas = json_decode($this->curlToGetPriceApi('get', $datazz->Symbol, $staticListSymbol));
+                $cryptoCoins = new CryptoCoins();
+                $datas = $cryptoCoins->getPrice($datazz->Symbol, $staticListSymbol);
+                if(isset($datas->RAW)) {
+                    $fordata = $datas->RAW->$listSymbolz;
+                 
+                    foreach($fordata as $ls){
+                        $models = Coinlistinfo::find()
+                        ->where(['CoinlistId' => $datazz['id'], ])
+                        ->one();
+                        if($models==null){
+                            $models = new Coinlistinfo();
+                        }
+                        
+                        $transaction = Coinlistinfo::getDb()->beginTransaction();
+                        try {
+                            $models->CoinlistId = $datazz['id'];
+                            $models->LiveCoinId = $datazz['CoinId'];
+                            // $models->CoinInputSymbol = $datazz['Symbol'];
+                            $models->TYPE = $ls->TYPE;
+                            $models->MARKET = $ls->MARKET;
+                            // $models->FROMSYMBOL = $ls->FROMSYMBOL;
+                            $models->TOSYMBOL = $ls->TOSYMBOL;
+                            $models->FLAGS = $ls->FLAGS;
+                            $models->PRICE = $ls->PRICE;
+                            $models->LASTUPDATE = $ls->LASTUPDATE;
+                            $models->LASTVOLUME = $ls->LASTVOLUME;
+                            $models->LASTVOLUMETO = $ls->LASTVOLUMETO;
+                            $models->LASTTRADEID = $ls->LASTTRADEID;
+                            $models->VOLUMEDAY = isset($ls->VOLUMEDAY) ? $ls->VOLUMEDAY : 0 ;
+                            $models->VOLUMEDAYTO = isset($ls->VOLUMEDAYTO) ? $ls->VOLUMEDAYTO : 0 ;
+                            $models->VOLUME24HOUR = $ls->VOLUME24HOUR;
+                            $models->VOLUME24HOURTO = $ls->VOLUME24HOURTO;
+                            $models->OPENDAY = isset($ls->OPENDAY) ? $ls->OPENDAY : 0 ;
+                            $models->HIGHDAY = isset($ls->HIGHDAY) ? $ls->HIGHDAY : 0 ;
+                            $models->LOWDAY = isset($ls->LOWDAY) ? $ls->LOWDAY : 0 ;
+                            $models->OPEN24HOUR = $ls->OPEN24HOUR;
+                            $models->HIGH24HOUR = $ls->HIGH24HOUR;
+                            $models->LOW24HOUR = $ls->LOW24HOUR;
+                            $models->LASTMARKET = $ls->LASTMARKET;
+                            $models->CHANGE24HOUR = $ls->CHANGE24HOUR;
+                            $models->CHANGEPCT24HOUR = $ls->CHANGEPCT24HOUR;
+                            $models->CHANGEPCTDAY = $ls->CHANGEPCTDAY;
+                            $models->SUPPLY = $ls->SUPPLY;
+                            $models->MKTCAP = $ls->MKTCAP;
+                            $models->TOTALVOLUME24H = $ls->TOTALVOLUME24H;
+                            $models->TOTALVOLUME24HTO = $ls->TOTALVOLUME24HTO;                       
+                            $models->save(); 
+                            // ...other DB operations...
+                            $transaction->commit();
+                        } catch(\Exception $e) {
+                            $transaction->rollBack();
+                            throw $e;
+                        } catch(\Throwable $e) {
+                            $transaction->rollBack();
+                            throw $e;
+                        }
+                    }
+                }
+            // }
+        }
+       
+    }
+
+    public function actionStoreExchangeList() {
+        $cryptoCoins = new CryptoCoins();
+        $decode = $cryptoCoins->getExchanges();
+        $checkList = ($decode['Cryptsy']);
+        foreach($checkList as $key => $value){
+                foreach($value as $ls)
+                {
+                    $cryptoCoins = new CryptoCoins();
+                    $decodes = $cryptoCoins->getTopExchanges($key, $ls);
+                    // $urls="https://min-api.cryptocompare.com/data/top/exchanges/full?fsym=".$key."&tsym=".$ls;
+                    // $results = $this->curlToRestApi('get', $urls);
+                    // $decodes = json_decode($results, true);
+                    $counts = count($decodes['Data']['CoinInfo']);
+                    $coinId='';
+                    if($counts>0){
+                        $coinId= $decodes['Data']['CoinInfo']['Id'];
+                    }
+                    $exchangeList = $decodes['Data']['Exchanges'];
+                    foreach($exchangeList as $exlistAll) {
+                        $currenciesModel = Currencies::find()->where( [ 'Name' => $exlistAll['FROMSYMBOL'] ] )->one();
+
+                        if(empty($currenciesModel)) {
+                            return print_r($exlistAll);
+                        }
+                        $models = Exchangelist::find()
+                            ->where(['FROMSYMBOL' => $currenciesModel->id, //TODO: handle FROMSYMBOl
+                            // 'MARKET' => $exlistAll['MARKET'],
+                            'TOSYMBOL' => $exlistAll['TOSYMBOL'] ])
+                            ->one();
+                    
+                        if($models==null){
+                            $models = new Exchangelist();
+                        } 
+                        
+
+                        // if($models->isNewRecord) {
+                        //     $exchangemodel = new Exchanges();
+                        // }else {
+                            $exchangemodel = Exchanges::find()
+                            ->where(['MARKET' =>  $exlistAll['MARKET'] ])
+                            ->one();
+
+                            if($exchangemodel==null){
+                                $exchangemodel = new Exchanges();
+                            } 
+                        // }
+
+                        // return print_r($exchangemodel->MARKET);exit;
+                        $transaction1 = Exchanges::getDb()->beginTransaction();
+                        try {
+                            $exchangemodel->MARKET = $exlistAll['MARKET'];
+                            $exchangemodel->save(false);
+                            // ...other DB operations...
+                            $transaction1->commit();
+                        } catch(\Exception $e) {
+                            $transaction1->rollBack();
+                            throw $e;
+                        } catch(\Throwable $e) {
+                            $transaction1->rollBack();
+                            throw $e;
+                        }
+
+                        $transaction = Exchangelist::getDb()->beginTransaction();
+                        try {
+                            $models->LiveCoinId = $coinId;                      
+                            $models->TYPE = $exlistAll['TYPE'];
+                            $models->MARKET = $exchangemodel->id;
+                            $models->FROMSYMBOL = $currenciesModel->id;
+                            $models->TOSYMBOL = $exlistAll['TOSYMBOL'];
+                            $models->FLAGS = $exlistAll['FLAGS'];
+                            $models->PRICE = $exlistAll['PRICE'];
+                            $models->LASTUPDATE = $exlistAll['LASTUPDATE'];
+                            $models->LASTVOLUME = $exlistAll['LASTVOLUME'];
+                            $models->LASTVOLUMETO = $exlistAll['LASTVOLUMETO'];
+                            $models->LASTTRADEID = $exlistAll['LASTTRADEID'];
+                            $models->VOLUME24HOUR = $exlistAll['VOLUME24HOUR'] ;
+                            $models->VOLUME24HOURTO = $exlistAll['VOLUME24HOURTO'];
+                            $models->OPEN24HOUR = $exlistAll['OPEN24HOUR'];
+                            $models->HIGH24HOUR = $exlistAll['HIGH24HOUR'];
+                            $models->LOW24HOUR = $exlistAll['LOW24HOUR'];
+                            $models->CHANGE24HOUR = $exlistAll['CHANGE24HOUR'];
+                            $models->CHANGEPCT24HOUR = $exlistAll['CHANGEPCT24HOUR'];
+                            $models->CHANGEPCTDAY = $exlistAll['CHANGEPCTDAY'];
+                            $models->CHANGEDAY = $exlistAll['CHANGEDAY'];
+                            $models->save(false);
+                            // ...other DB operations...
+                            $transaction->commit();
+                        } catch(\Exception $e) {
+                            $transaction->rollBack();
+                            throw $e;
+                        } catch(\Throwable $e) {
+                            $transaction->rollBack();
+                            throw $e;
+                        }
+                    }
+            }
+        }
+        return ('done');
     }
 
     //NOTE: commented not used now
