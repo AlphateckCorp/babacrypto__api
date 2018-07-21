@@ -30,7 +30,7 @@ class CoinsListController extends ActiveController
 
     public function actionExchangeList(){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $exchangeList = Exchangelist::find()->all();
+        $exchangeList = Exchangelist::find()->joinWith(['exchanges','currencies'])->asArray()->all();
         return ($exchangeList);
     }
    

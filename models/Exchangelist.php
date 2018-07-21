@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\models\Exchanges;
 use Yii;
 
 /**
@@ -78,5 +79,19 @@ class Exchangelist extends \yii\db\ActiveRecord
             'CHANGEPCTDAY' => 'Changepctday',
             'CHANGEDAY' => 'Changeday',
         ];
+    }
+
+     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getExchanges() {
+        return $this->hasOne(Exchanges::className(), ['id' => 'MARKET']);
+    }
+
+     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrencies() {
+        return $this->hasOne(Currencies::className(), ['id' => 'FROMSYMBOL']);
     }
 }
