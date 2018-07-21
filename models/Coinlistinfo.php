@@ -10,7 +10,6 @@ use Yii;
  * @property int $id
  * @property int $CoinlistId
  * @property string $CoinInputSymbol
- * @property int $LiveCoinId
  * @property int $TYPE
  * @property string $MARKET
  * @property string $FROMSYMBOL
@@ -59,7 +58,7 @@ class Coinlistinfo extends \yii\db\ActiveRecord
     {
         return [
             [['CoinlistId'], 'required'],
-            [['CoinlistId', 'LiveCoinId', 'TYPE', 'FLAGS'], 'integer'],
+            [['CoinlistId', 'TYPE', 'FLAGS'], 'integer'],
             [['PRICE', 'LASTUPDATE', 'LASTVOLUME', 'LASTVOLUMETO', 'LASTTRADEID', 'VOLUMEDAY', 'VOLUMEDAYTO', 'VOLUME24HOUR', 'VOLUME24HOURTO', 'OPENDAY', 'HIGHDAY', 'LOWDAY', 'OPEN24HOUR', 'HIGH24HOUR', 'LOW24HOUR', 'CHANGE24HOUR', 'CHANGEPCT24HOUR', 'CHANGEPCTDAY', 'SUPPLY', 'MKTCAP', 'TOTALVOLUME24H', 'TOTALVOLUME24HTO'], 'number'],
             // [['CoinInputSymbol'], 'string', 'max' => 45],
             // [['MARKET', 'FROMSYMBOL', 'TOSYMBOL', 'LASTMARKET'], 'string', 'max' => 255],
@@ -77,7 +76,7 @@ class Coinlistinfo extends \yii\db\ActiveRecord
             'id' => 'ID',
             'CoinlistId' => 'Coinlist ID',
             // 'CoinInputSymbol' => 'Coin Input Symbol',
-            'LiveCoinId' => 'Live Coin ID',
+            // 'LiveCoinId' => 'Live Coin ID',
             'TYPE' => 'Type',
             'MARKET' => 'Market',
             // 'FROMSYMBOL' => 'Fromsymbol',

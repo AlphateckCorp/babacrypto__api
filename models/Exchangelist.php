@@ -8,7 +8,6 @@ use Yii;
  * This is the model class for table "exchangelist".
  *
  * @property int $id
- * @property int $LiveCoinId
  * @property int $TYPE
  * @property string $MARKET
  * @property string $FROMSYMBOL
@@ -46,7 +45,7 @@ class Exchangelist extends \yii\db\ActiveRecord
     {
         return [
             [['id'], 'required'],
-            [['id', 'LiveCoinId', 'TYPE', 'FLAGS'], 'integer'],
+            [['id', 'TYPE', 'FLAGS'], 'integer'],
             [['PRICE', 'LASTUPDATE', 'LASTVOLUME', 'LASTVOLUMETO', 'LASTTRADEID', 'VOLUME24HOUR', 'VOLUME24HOURTO', 'OPEN24HOUR', 'HIGH24HOUR', 'LOW24HOUR', 'CHANGE24HOUR', 'CHANGEPCT24HOUR', 'CHANGEPCTDAY', 'CHANGEDAY'], 'number'],
             [['MARKET', 'FROMSYMBOL', 'TOSYMBOL'], 'string', 'max' => 255],
         ];
@@ -59,7 +58,6 @@ class Exchangelist extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'LiveCoinId' => 'Live Coin ID',
             'TYPE' => 'Type',
             'MARKET' => 'Market',
             'FROMSYMBOL' => 'Fromsymbol',
