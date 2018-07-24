@@ -5,6 +5,7 @@ use Yii;
 use app\models\Currencies;
 use app\models\Coinlistinfo;
 use app\models\Exchangelist;
+use app\models\Exchanges;
 use yii\helpers\Json;
 use yii\data\ActiveDataProvider;
 use yii\rest\ActiveController;
@@ -64,7 +65,7 @@ class CoinsListController extends ActiveController
            
             $data = Exchangelist::find()
             ->where(['FROMSYMBOL'=>$market['id']])
-            ->all();
+            ->joinWith(['exchanges'])->asArray()->all();
             
             return ($data);
         }
@@ -74,11 +75,15 @@ class CoinsListController extends ActiveController
     public function actionOnlyMarket(){
         if(Yii::$app->request->post())
         {   
-            //TODO: handle market by id
             $market = Yii::$app->request->post('MARKET');
-            $data = Exchangelist::find()
+
+            $data = Exchanges::find()
             ->where(['MARKET'=>$market])
-            ->all();
+            ->one();
+
+            $data = Exchangelist::find()
+            ->where(['exchangelist.MARKET'=>$data->id])
+            ->joinWith(['currencies','exchanges'])->asArray()->all();
             return ($data);
         }
     }
