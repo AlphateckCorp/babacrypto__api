@@ -17,7 +17,13 @@ class CoinsListController extends ActiveController
 
     public function actionYour() {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $dataz = Currencies::find()->joinWith(['coinlistinfos'])->asArray()->all();
+        $queryParams = Yii::$app->request->queryParams;
+        $dataz = Currencies::find()
+        ->joinWith(['coinlistinfos'])
+        ->limit($queryParams['limit'])
+        ->offset($queryParams['offset'])
+        ->groupBy('id')
+        ->asArray()->all();
         return  $dataz;
     }
 
