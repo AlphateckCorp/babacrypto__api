@@ -18,12 +18,15 @@ class CoinsListController extends ActiveController
     public function actionYour() {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $queryParams = Yii::$app->request->queryParams;
+        $sort = explode(',',$queryParams['sort']);
         $dataz = Currencies::find()
         ->joinWith(['coinlistinfos'])
         ->limit($queryParams['limit'])
         ->offset($queryParams['offset'])
-        ->groupBy('id')
-        ->asArray()->all();
+        ->orderBy([$sort[0] => $sort[1] == 'asc' ? SORT_ASC : SORT_DESC])
+        ->groupBy($sort[0])
+        ->asArray()
+        ->all();
         return  $dataz;
     }
 
@@ -37,8 +40,9 @@ class CoinsListController extends ActiveController
 
     public function actionExchangeList(){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $exchangeList = Exchangelist::find()->joinWith(['exchanges','currencies'])->asArray()->all();
-        return ($exchangeList);
+        // $exchangeList = Exchangelist::find()->joinWith(['exchanges','currencies'])->asArray()->all();
+        // return ($exchangeList);
+        return Exchanges::find()->joinWith(['exchangeList'])->asArray()->all();
     }
    
     public function actionExchangeCoinList(){
