@@ -40,9 +40,14 @@ class CoinsListController extends ActiveController
 
     public function actionExchangeList(){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        // $exchangeList = Exchangelist::find()->joinWith(['exchanges','currencies'])->asArray()->all();
-        // return ($exchangeList);
-        return Exchanges::find()->joinWith(['exchangeList'])->asArray()->all();
+        $count =  Exchanges::find()->count();
+        $queryParams = Yii::$app->request->queryParams;
+        $sort = explode(',',$queryParams['sort']);
+        $limit = $queryParams['limit'];
+        $offset = $queryParams['offset'];
+        $command = Yii::$app->db->createCommand("SELECT exchanges.id,exchanges.market,group_concat(currencies.Symbol) as coins,exchanges.externalLink, sum(exchangelist.VOLUME24HOUR) as VOLUME24HOUR FROM `exchanges` LEFT JOIN `exchangelist` ON exchanges.id = exchangelist.MARKET LEFT JOIN `currencies` ON currencies.id=exchangelist.FROMSYMBOL GROUP BY exchangelist.MARKET  ORDER BY ".$sort[0]." ".$sort[1]." LIMIT ".$limit." OFFSET ".$offset);
+        $result = $command->queryAll();
+        return ['rows'=>$result,'count'=>$count];
     }
    
     public function actionExchangeCoinList(){

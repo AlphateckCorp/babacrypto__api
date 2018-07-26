@@ -188,16 +188,7 @@ class CronController extends Controller {
                         if($currenciesModel==null) {
                             continue;
                         }
-                        $models = Exchangelist::find()
-                            ->where(['FROMSYMBOL' => $currenciesModel->id,
-                            // 'MARKET' => $exlistAll['MARKET'],
-                            'TOSYMBOL' => $exlistAll['TOSYMBOL'] ])
-                            ->one();
-                    
-                        if($models==null){
-                            $models = new Exchangelist();
-                        }
-                        
+
                         $exchangemodel = Exchanges::find()
                         ->where(['MARKET' =>  $exlistAll['MARKET'] ])
                         ->one();
@@ -219,6 +210,16 @@ class CronController extends Controller {
                         } catch(\Throwable $e) {
                             $transaction1->rollBack();
                             throw $e;
+                        }
+
+                        $models = Exchangelist::find()
+                            ->where(['FROMSYMBOL' => $currenciesModel->id,
+                            'MARKET' => $exchangemodel->id,
+                            'TOSYMBOL' => $exlistAll['TOSYMBOL'] ])
+                            ->one();
+                    
+                        if($models==null){
+                            $models = new Exchangelist();
                         }
 
                         $transaction = Exchangelist::getDb()->beginTransaction();
