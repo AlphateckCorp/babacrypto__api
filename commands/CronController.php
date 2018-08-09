@@ -110,6 +110,12 @@ class CronController extends Controller {
                     $fordata = $datas->RAW->$listSymbolz;
                  
                     foreach($fordata as $ls){
+
+                        $exchangesModel = Exchanges::find()->where(['MARKET' => $ls->LASTMARKET])->one();
+                        if ($exchangesModel == null) {
+                            continue;
+                        }
+
                         $models = Coinlistinfo::find()
                         ->where(['CoinlistId' => $datazz['id'],'TOSYMBOL' =>  $ls->TOSYMBOL])
                         ->one();
@@ -142,7 +148,7 @@ class CronController extends Controller {
                             $models->OPEN24HOUR = $ls->OPEN24HOUR;
                             $models->HIGH24HOUR = $ls->HIGH24HOUR;
                             $models->LOW24HOUR = $ls->LOW24HOUR;
-                            $models->LASTMARKET = $ls->LASTMARKET;
+                            $models->LASTMARKET = $exchangesModel->id;
                             $models->CHANGE24HOUR = $ls->CHANGE24HOUR;
                             $models->CHANGEPCT24HOUR = $ls->CHANGEPCT24HOUR;
                             $models->CHANGEPCTDAY = $ls->CHANGEPCTDAY;
