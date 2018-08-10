@@ -20,6 +20,8 @@ class CoinsListController extends ActiveController
         $queryParams = Yii::$app->request->queryParams;
         $sort = explode(',',$queryParams['sort']);
         $dataz = Currencies::find()
+        ->where(['!=','Name','USD'])
+        ->andWhere(['!=','Name','EUR'])
         ->joinWith(['coinlistinfos'])
         ->limit($queryParams['limit'])
         ->offset($queryParams['offset'])
@@ -59,8 +61,8 @@ class CoinsListController extends ActiveController
             $coinName = str_replace('-', ' ', $coinName);
            
             $data = Currencies::find()
-            ->where(['CoinName'=>$coinName])
-            ->joinWith(['coinlistinfos'])
+            ->where(['currencies.CoinName'=>$coinName])
+            ->joinWith(['coinlistinfos','coinlistinfos.tosymbol coin'])
             ->asArray()
             ->all();
             return ($data);

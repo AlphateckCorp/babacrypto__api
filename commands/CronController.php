@@ -112,12 +112,17 @@ class CronController extends Controller {
                     foreach($fordata as $ls){
 
                         $exchangesModel = Exchanges::find()->where(['MARKET' => $ls->LASTMARKET])->one();
+                        
                         if ($exchangesModel == null) {
-                            continue;
+                            $exchangesModel = new Exchanges;
+                            $exchangesModel->MARKET = $ls->LASTMARKET;
+                            $exchangesModel->save(false);
                         }
+                        
+                        $currenciesModel = Currencies::find()->where(['Name' => $ls->TOSYMBOL])->one();
 
                         $models = Coinlistinfo::find()
-                        ->where(['CoinlistId' => $datazz['id'],'TOSYMBOL' =>  $ls->TOSYMBOL])
+                        ->where(['CoinlistId' => $datazz['id'],'TOSYMBOL' =>  $currenciesModel->id])
                         ->one();
                         if($models==null){
                             $models = new Coinlistinfo();
@@ -131,7 +136,7 @@ class CronController extends Controller {
                             $models->TYPE = $ls->TYPE;
                             $models->MARKET = $ls->MARKET;
                             // $models->FROMSYMBOL = $ls->FROMSYMBOL;
-                            $models->TOSYMBOL = $ls->TOSYMBOL;
+                            $models->TOSYMBOL = $currenciesModel->id;
                             $models->FLAGS = $ls->FLAGS;
                             $models->PRICE = $ls->PRICE;
                             $models->LASTUPDATE = $ls->LASTUPDATE;
