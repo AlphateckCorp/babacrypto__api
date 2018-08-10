@@ -59,10 +59,10 @@ class Coinlistinfo extends \yii\db\ActiveRecord
         return [
             [['CoinlistId'], 'required'],
             [['CoinlistId', 'TYPE', 'FLAGS'], 'integer'],
-            [['PRICE', 'LASTUPDATE', 'LASTVOLUME', 'LASTVOLUMETO', 'LASTTRADEID', 'VOLUMEDAY', 'VOLUMEDAYTO', 'VOLUME24HOUR', 'VOLUME24HOURTO', 'OPENDAY', 'HIGHDAY', 'LOWDAY', 'OPEN24HOUR', 'HIGH24HOUR', 'LOW24HOUR', 'CHANGE24HOUR', 'CHANGEPCT24HOUR', 'CHANGEPCTDAY', 'SUPPLY', 'MKTCAP', 'TOTALVOLUME24H', 'TOTALVOLUME24HTO'], 'number'],
+            [['PRICE', 'LASTUPDATE','LASTMARKET', 'LASTVOLUME','TOSYMBOL', 'LASTVOLUMETO', 'LASTTRADEID', 'VOLUMEDAY', 'VOLUMEDAYTO', 'VOLUME24HOUR', 'VOLUME24HOURTO', 'OPENDAY', 'HIGHDAY', 'LOWDAY', 'OPEN24HOUR', 'HIGH24HOUR', 'LOW24HOUR', 'CHANGE24HOUR', 'CHANGEPCT24HOUR', 'CHANGEPCTDAY', 'SUPPLY', 'MKTCAP', 'TOTALVOLUME24H', 'TOTALVOLUME24HTO'], 'number'],
             // [['CoinInputSymbol'], 'string', 'max' => 45],
             // [['MARKET', 'FROMSYMBOL', 'TOSYMBOL', 'LASTMARKET'], 'string', 'max' => 255],
-            [['MARKET','TOSYMBOL', 'LASTMARKET'], 'string', 'max' => 255],
+            [['MARKET'], 'string', 'max' => 255],
             [['CoinlistId'], 'exist', 'skipOnError' => true, 'targetClass' => Currencies::className(), 'targetAttribute' => ['CoinlistId' => 'id']],
         ];
     }
@@ -111,8 +111,8 @@ class Coinlistinfo extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    // public function getCoinlist()
-    // {
-    //     return $this->hasOne(Currencies::className(), ['id' => 'CoinlistId']);
-    // }
+    public function getTosymbol()
+    {
+        return $this->hasOne(Currencies::className(), ['id' => 'TOSYMBOL']);
+    }
 }
