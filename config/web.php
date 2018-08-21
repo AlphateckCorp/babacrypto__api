@@ -66,10 +66,8 @@ $config = [
 
              'exchangecoin' => 'coins-list/exchange-coin-list',
              'exchangemarketlist' => 'coins-list/exchange-market-list',
-
-
-             
              'onlymarket' => 'coins-list/only-market',
+             'exchangeMarket' => 'coins-list/market',
             //  'tests' => 'tests/make',
             ],
             // 'rules' => [

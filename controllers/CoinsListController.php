@@ -52,6 +52,13 @@ class CoinsListController extends ActiveController
         return ['rows'=>$result,'count'=>$count];
     }
    
+    public function actionMarket() {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $queryParams = Yii::$app->request->queryParams;
+        $market =  Exchanges::find()->where(['MARKET' => $queryParams['market']])->one();
+        return $market;
+    }
+
     public function actionExchangeCoinList(){
         if(Yii::$app->request->post())
         {   
