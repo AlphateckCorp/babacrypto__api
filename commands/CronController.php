@@ -1,6 +1,6 @@
 <?php
 // namespace app\controllers;
- 
+
 // use yii\web\Controller;
 
 namespace app\commands;
@@ -16,11 +16,11 @@ use Yii;
  * Cron controller
  */
 class CronController extends Controller {
- 
+
     public function actionIndex() {
         echo "cron service runnning";
     }
- 
+
     public function actionMake() {
         $rootyii = realpath(dirname(__FILE__)).'/../';
         $filename = date('H:i:s'). '.txt';
@@ -29,7 +29,7 @@ class CronController extends Controller {
         $fw = fwrite($f, 'now :'.$filename);
         fclose($f);
     }
-    
+
     public function actionStoreCoins() {
         $cryptoCoins = new CryptoCoins();
         $decode = $cryptoCoins->getList();
@@ -39,7 +39,7 @@ class CronController extends Controller {
         $marketList=[];
         $exists = '';
         $notExists = '';
-        
+
         forEach($decode['Data'] as $key) {
             $model = Currencies::find()->where( [ 'CoinId' => $key['Id'] ] )->one();
             $errorCoinID = "57705, 180001, 620037";
@@ -47,7 +47,7 @@ class CronController extends Controller {
 
             if(!in_array($key['Id'], $leftCoinID)){
                 if($model==null){
-                    $model = new Currencies();    
+                    $model = new Currencies();
                 }
                 $transaction = Currencies::getDb()->beginTransaction();
                 try {
@@ -85,7 +85,7 @@ class CronController extends Controller {
             }
         }
         return 'done';
-               
+
     }
 
     public function actionStoreCoinMarket(){
@@ -99,8 +99,8 @@ class CronController extends Controller {
         $listSymbols = [];
         $staticListSymbol = "USD,EUR,ETH";
         // Yii::$app->db->createCommand()->truncateTable('coinlistinfo')->execute();
-        
-        foreach($data as $datazz){  
+
+        foreach($data as $datazz){
             // if(in_array($datazz['CoinId'], $url_string)){
                 $listSymbolz = $datazz['Symbol'];
                 // $datas = json_decode($this->curlToGetPriceApi('get', $datazz->Symbol, $staticListSymbol));
@@ -108,17 +108,17 @@ class CronController extends Controller {
                 $datas = $cryptoCoins->getPrice($datazz->Symbol, $staticListSymbol);
                 if(isset($datas->RAW->$listSymbolz)) {
                     $fordata = $datas->RAW->$listSymbolz;
-                 
+
                     foreach($fordata as $ls){
 
                         $exchangesModel = Exchanges::find()->where(['MARKET' => $ls->LASTMARKET])->one();
-                        
+
                         if ($exchangesModel == null) {
                             $exchangesModel = new Exchanges;
                             $exchangesModel->MARKET = $ls->LASTMARKET;
                             $exchangesModel->save(false);
                         }
-                        
+
                         $currenciesModel = Currencies::find()->where(['Name' => $ls->TOSYMBOL])->one();
 
                         $models = Coinlistinfo::find()
@@ -127,7 +127,7 @@ class CronController extends Controller {
                         if($models==null){
                             $models = new Coinlistinfo();
                         }
-                        
+
                         $transaction = Coinlistinfo::getDb()->beginTransaction();
                         try {
                             $models->CoinlistId = $datazz['id'];
@@ -160,8 +160,8 @@ class CronController extends Controller {
                             $models->SUPPLY = $ls->SUPPLY;
                             $models->MKTCAP = $ls->MKTCAP;
                             $models->TOTALVOLUME24H = $ls->TOTALVOLUME24H;
-                            $models->TOTALVOLUME24HTO = $ls->TOTALVOLUME24HTO;                       
-                            $models->save(); 
+                            $models->TOTALVOLUME24HTO = $ls->TOTALVOLUME24HTO;
+                            $models->save();
                             // ...other DB operations...
                             $transaction->commit();
                         } catch(\Exception $e) {
@@ -175,13 +175,13 @@ class CronController extends Controller {
                 }
             // }
         }
-       
+
     }
 
     public function actionStoreExchangeList() {
         $cryptoCoins = new CryptoCoins();
         $decode = $cryptoCoins->getExchanges();
-        $checkList = ($decode['Cryptsy']);
+        $checkList = $decode(['Cryptsy']);
         foreach($checkList as $key => $value){
                 foreach($value as $ls)
                 {
@@ -199,7 +199,7 @@ class CronController extends Controller {
                         if($currenciesModel==null) {
                             continue;
                         }
-
+                        
                         $exchangemodel = Exchanges::find()
                         ->where(['MARKET' =>  $exlistAll['MARKET'] ])
                         ->one();
@@ -207,7 +207,6 @@ class CronController extends Controller {
                         if($exchangemodel==null){
                             $exchangemodel = new Exchanges();
                         }
-
 
                         $transaction1 = Exchanges::getDb()->beginTransaction();
                         try {
@@ -228,14 +227,14 @@ class CronController extends Controller {
                             'MARKET' => $exchangemodel->id,
                             'TOSYMBOL' => $exlistAll['TOSYMBOL'] ])
                             ->one();
-                    
+
                         if($models==null){
                             $models = new Exchangelist();
                         }
 
                         $transaction = Exchangelist::getDb()->beginTransaction();
                         try {
-                            // $models->LiveCoinId = $coinId;                      
+                            // $models->LiveCoinId = $coinId;
                             $models->TYPE = $exlistAll['TYPE'];
                             $models->MARKET = $exchangemodel->id;
                             $models->FROMSYMBOL = $currenciesModel->id;
