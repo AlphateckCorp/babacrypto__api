@@ -15,11 +15,11 @@
 
 return [
     'class' => 'yii\db\Connection',
-    // 'dsn' => 'mysql:host=localhost;dbname=babacrypto_dev',
-    // 'username' => 'root',
-    // 'password' => 'Smile@1234',
-    'dsn' => 'mysql:host=localhost;dbname=babacrypto_master',
+    'dsn' => 'mysql:host=localhost;dbname=babacrypto_dev',
     'username' => 'root',
     'password' => 'Smile@1234',
+    // 'dsn' => 'mysql:host=localhost;dbname=babacrypto_master',
+    // 'username' => 'root',
+    // 'password' => 'Smile@1234',
     'charset' => 'utf8'
 ];
