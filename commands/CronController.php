@@ -185,35 +185,30 @@ class CronController extends Controller {
             foreach($checkList as $key => $value) {
                 if (ctype_print($key)) {
                     $currenciesModel = Currencies::find()->where( [ 'Name' => $key ] )->one();
-
-                if($currenciesModel==null) {
-                    $currenciesModel = new Currencies();
-                    $currencyTransact = Currencies::getDb()->beginTransaction();
-                    try {
-                        $currenciesModel->Name = $key;
-                        $currenciesModel->Symbol = $key;
-                        $currenciesModel->CoinName = $key;
-                        $currenciesModel->FullName = $key;
-                        $currenciesModel->save(false);
-                        // ...other DB operations...
-                        $currencyTransact->commit();
-                    } catch(\Exception $error) {
-                        $currencyTransact->rollBack();
-                        throw $error;
-                    } catch(\Throwable $error) {
-                        $currencyTransact->rollBack();
-                        throw $error;
+                    if($currenciesModel==null) {
+                        $currenciesModel = new Currencies();
+                        $currencyTransact = Currencies::getDb()->beginTransaction();
+                        try {
+                            $currenciesModel->Name = $key;
+                            $currenciesModel->Symbol = $key;
+                            $currenciesModel->CoinName = $key;
+                            $currenciesModel->FullName = $key;
+                            $currenciesModel->save(false);
+                            // ...other DB operations...
+                            $currencyTransact->commit();
+                        } catch(\Exception $error) {
+                            $currencyTransact->rollBack();
+                            throw $error;
+                        } catch(\Throwable $error) {
+                            $currencyTransact->rollBack();
+                            throw $error;
+                        }
                     }
-                }
-               
                     foreach($value as $ls)
                     {
                         $cryptoCoins = new CryptoCoins();
                         $decodes = $cryptoCoins->getTopExchanges($key, $ls);
                         $exchangeList = $decodes['Data']['Exchanges'];
-                       
-
-
                         foreach($exchangeList as $exlistAll) {
                             $models = Exchangelist::find()
                                 ->where(['FROMSYMBOL' => $currenciesModel->id,
@@ -258,11 +253,8 @@ class CronController extends Controller {
                                 throw $e;
                             }
                         }
-                }
-                } else {
-                    continue;
-                }
-                
+                    }
+                } 
             }
         }
         return ('done');
