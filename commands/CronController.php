@@ -71,7 +71,7 @@ class CronController extends Controller {
                     $model->TotalCoinsFreeFloat = $key['TotalCoinsFreeFloat'];
                     $model->SortOrder = $key['SortOrder'];
                     $model->Sponsored = $key['Sponsored'];
-                    // $model->IsTrading = $key['IsTrading'];
+                    // $model->IsTrading = $key['IsTrading'];!
                     $model->save();
                     // ...other DB operations...
                     $transaction->commit();
@@ -183,7 +183,8 @@ class CronController extends Controller {
         foreach($exchanges as $marketName => $checkList) {
             $exchangemodel = $this->saveMarkets($marketName);
             foreach($checkList as $key => $value) {
-                $currenciesModel = Currencies::find()->where( [ 'Name' => $key ] )->one();
+                if (ctype_print($key)) {
+                    $currenciesModel = Currencies::find()->where( [ 'Name' => $key ] )->one();
 
                 if($currenciesModel==null) {
                     $currenciesModel = new Currencies();
@@ -212,7 +213,7 @@ class CronController extends Controller {
                         $exchangeList = $decodes['Data']['Exchanges'];
                        
 
-                        
+
                         foreach($exchangeList as $exlistAll) {
                             $models = Exchangelist::find()
                                 ->where(['FROMSYMBOL' => $currenciesModel->id,
@@ -258,6 +259,10 @@ class CronController extends Controller {
                             }
                         }
                 }
+                } else {
+                    continue;
+                }
+                
             }
         }
         return ('done');
