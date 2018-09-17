@@ -47,7 +47,7 @@ class CoinsListController extends ActiveController
         $sort = explode(',',$queryParams['sort']);
         $limit = $queryParams['limit'];
         $offset = $queryParams['offset'];
-        $command = Yii::$app->db->createCommand("SELECT exchanges.id,exchanges.market,group_concat(currencies.Symbol) as coins,exchanges.externalLink, sum(exchangelist.VOLUME24HOUR) as VOLUME24HOUR FROM `exchanges` LEFT JOIN `exchangelist` ON exchanges.id = exchangelist.MARKET LEFT JOIN `currencies` ON currencies.id=exchangelist.FROMSYMBOL GROUP BY exchanges.MARKET  ORDER BY ".$sort[0]." ".$sort[1]." LIMIT ".$limit." OFFSET ".$offset);
+        $command = Yii::$app->db->createCommand("SELECT exchanges.id,exchanges.market,group_concat(DISTINCT(currencies.Symbol)) as coins,exchanges.externalLink, sum(exchangelist.VOLUME24HOUR) as VOLUME24HOUR FROM `exchanges` LEFT JOIN `exchangelist` ON exchanges.id = exchangelist.MARKET LEFT JOIN `currencies` ON currencies.id=exchangelist.FROMSYMBOL GROUP BY exchanges.MARKET  ORDER BY ".$sort[0]." ".$sort[1]." LIMIT ".$limit." OFFSET ".$offset);
         $result = $command->queryAll();
         return ['rows'=>$result,'count'=>$count];
     }
