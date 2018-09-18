@@ -177,88 +177,90 @@ class CronController extends Controller {
         }
 
     }
-    public function actionStoreExchangeList() {
-        $cryptoCoins = new CryptoCoins();
-        $exchanges = $cryptoCoins->getExchanges();
-        foreach($exchanges as $marketName => $checkList) {
-            $exchangemodel = $this->saveMarkets($marketName);
-            foreach($checkList as $key => $value) {
-                if (ctype_print($key)) {
-                    $currenciesModel = Currencies::find()->where( [ 'Name' => $key ] )->one();
-                    if($currenciesModel==null) {
-                        $currenciesModel = new Currencies();
-                        $currencyTransact = Currencies::getDb()->beginTransaction();
-                        try {
-                            $currenciesModel->Name = $key;
-                            $currenciesModel->Symbol = $key;
-                            $currenciesModel->CoinName = $key;
-                            $currenciesModel->FullName = $key;
-                            $currenciesModel->save(false);
-                            // ...other DB operations...
-                            $currencyTransact->commit();
-                        } catch(\Exception $error) {
-                            $currencyTransact->rollBack();
-                            throw $error;
-                        } catch(\Throwable $error) {
-                            $currencyTransact->rollBack();
-                            throw $error;
-                        }
-                    }
-                    foreach($value as $ls)
-                    {
-                        $cryptoCoins = new CryptoCoins();
-                        $decodes = $cryptoCoins->getTopExchanges($key, $ls);
-                        $exchangeList = $decodes['Data']['Exchanges'];
-                        foreach($exchangeList as $exlistAll) {
-                            $models = Exchangelist::find()
-                                ->where(['FROMSYMBOL' => $currenciesModel->id,
-                                'MARKET' => $exchangemodel->id,
-                                'TOSYMBOL' => $exlistAll['TOSYMBOL'] ]) 
-                                ->one();
-
-                            if($models==null){
-                                $models = new Exchangelist();
+        public function actionStoreExchangeList() {
+            $cryptoCoins = new CryptoCoins();
+            $exchanges = $cryptoCoins->getExchanges();
+            foreach($exchanges as $marketName => $checkList) {
+                $exchangemodel = $this->saveMarkets($marketName);
+                foreach($checkList as $key => $value) {
+                    if(!preg_match("/^0x/",$key)){
+                        if (ctype_print($key)) {
+                            $currenciesModel = Currencies::find()->where( [ 'Name' => $key ] )->one();
+                            if($currenciesModel==null) {
+                                $currenciesModel = new Currencies();
+                                $currencyTransact = Currencies::getDb()->beginTransaction();
+                                try {
+                                    $currenciesModel->Name = $key;
+                                    $currenciesModel->Symbol = $key;
+                                    $currenciesModel->CoinName = $key;
+                                    $currenciesModel->FullName = $key;
+                                    $currenciesModel->save(false);
+                                    // ...other DB operations...
+                                    $currencyTransact->commit();
+                                } catch(\Exception $error) {
+                                    $currencyTransact->rollBack();
+                                    throw $error;
+                                } catch(\Throwable $error) {
+                                    $currencyTransact->rollBack();
+                                    throw $error;
+                                }
                             }
+                            foreach($value as $ls)
+                            {
+                                $cryptoCoins = new CryptoCoins();
+                                $decodes = $cryptoCoins->getTopExchanges($key, $ls);
+                                $exchangeList = $decodes['Data']['Exchanges'];
+                                foreach($exchangeList as $exlistAll) {
+                                    $models = Exchangelist::find()
+                                        ->where(['FROMSYMBOL' => $currenciesModel->id,
+                                        'MARKET' => $exchangemodel->id,
+                                        'TOSYMBOL' => $exlistAll['TOSYMBOL'] ]) 
+                                        ->one();
 
-                            $transaction = Exchangelist::getDb()->beginTransaction();
-                            try {
-                                // $models->LiveCoinId = $coinId;
-                                $models->TYPE = $exlistAll['TYPE'];
-                                $models->MARKET = $exchangemodel->id;
-                                $models->FROMSYMBOL = $currenciesModel->id;
-                                $models->TOSYMBOL = $exlistAll['TOSYMBOL'];
-                                $models->FLAGS = $exlistAll['FLAGS'];
-                                $models->PRICE = $exlistAll['PRICE'];
-                                $models->LASTUPDATE = $exlistAll['LASTUPDATE'];
-                                $models->LASTVOLUME = $exlistAll['LASTVOLUME'];
-                                $models->LASTVOLUMETO = $exlistAll['LASTVOLUMETO'];
-                                $models->LASTTRADEID = $exlistAll['LASTTRADEID'];
-                                $models->VOLUME24HOUR = $exlistAll['VOLUME24HOUR'] ;
-                                $models->VOLUME24HOURTO = $exlistAll['VOLUME24HOURTO'];
-                                $models->OPEN24HOUR = $exlistAll['OPEN24HOUR'];
-                                $models->HIGH24HOUR = $exlistAll['HIGH24HOUR'];
-                                $models->LOW24HOUR = $exlistAll['LOW24HOUR'];
-                                $models->CHANGE24HOUR = $exlistAll['CHANGE24HOUR'];
-                                $models->CHANGEPCT24HOUR = $exlistAll['CHANGEPCT24HOUR'];
-                                $models->CHANGEPCTDAY = $exlistAll['CHANGEPCTDAY'];
-                                $models->CHANGEDAY = $exlistAll['CHANGEDAY'];
-                                $models->save(false);
-                                // ...other DB operations...
-                                $transaction->commit();
-                            } catch(\Exception $e) {
-                                $transaction->rollBack();
-                                throw $e;
-                            } catch(\Throwable $e) {
-                                $transaction->rollBack();
-                                throw $e;
+                                    if($models==null){
+                                        $models = new Exchangelist();
+                                    }
+
+                                    $transaction = Exchangelist::getDb()->beginTransaction();
+                                    try {
+                                        // $models->LiveCoinId = $coinId;
+                                        $models->TYPE = $exlistAll['TYPE'];
+                                        $models->MARKET = $exchangemodel->id;
+                                        $models->FROMSYMBOL = $currenciesModel->id;
+                                        $models->TOSYMBOL = $exlistAll['TOSYMBOL'];
+                                        $models->FLAGS = $exlistAll['FLAGS'];
+                                        $models->PRICE = $exlistAll['PRICE'];
+                                        $models->LASTUPDATE = $exlistAll['LASTUPDATE'];
+                                        $models->LASTVOLUME = $exlistAll['LASTVOLUME'];
+                                        $models->LASTVOLUMETO = $exlistAll['LASTVOLUMETO'];
+                                        $models->LASTTRADEID = $exlistAll['LASTTRADEID'];
+                                        $models->VOLUME24HOUR = $exlistAll['VOLUME24HOUR'] ;
+                                        $models->VOLUME24HOURTO = $exlistAll['VOLUME24HOURTO'];
+                                        $models->OPEN24HOUR = $exlistAll['OPEN24HOUR'];
+                                        $models->HIGH24HOUR = $exlistAll['HIGH24HOUR'];
+                                        $models->LOW24HOUR = $exlistAll['LOW24HOUR'];
+                                        $models->CHANGE24HOUR = $exlistAll['CHANGE24HOUR'];
+                                        $models->CHANGEPCT24HOUR = $exlistAll['CHANGEPCT24HOUR'];
+                                        $models->CHANGEPCTDAY = $exlistAll['CHANGEPCTDAY'];
+                                        $models->CHANGEDAY = $exlistAll['CHANGEDAY'];
+                                        $models->save(false);
+                                        // ...other DB operations...
+                                        $transaction->commit();
+                                    } catch(\Exception $e) {
+                                        $transaction->rollBack();
+                                        throw $e;
+                                    } catch(\Throwable $e) {
+                                        $transaction->rollBack();
+                                        throw $e;
+                                    }
+                                }
                             }
-                        }
-                    }
-                } 
+                        } 
+                }
+                }
             }
+            return ('done');
         }
-        return ('done');
-    }
 
     function saveMarkets($marketName) {
         $exchangemodel = Exchanges::find()
