@@ -15,29 +15,37 @@ class CoinsListController extends ActiveController
 {
     public $modelClass = 'app\models\Coinlistinfo';
 
-    public function actionYour() {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $queryParams = Yii::$app->request->queryParams;
-        $sort = explode(',',$queryParams['sort']);
-        $dataz = Currencies::find()
-        ->where(['!=','Name','USD'])
-        ->andWhere(['!=','Name','EUR'])
-        ->joinWith(['coinlistinfos'])
-        ->limit($queryParams['limit'])
-        ->offset($queryParams['offset'])
-        ->orderBy([$sort[0] => $sort[1] == 'asc' ? SORT_ASC : SORT_DESC])
-        ->groupBy($sort[0])
-        ->asArray()
-        ->all();
-        return  $dataz;
-    }
+        public function actionYour() {
+            \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            $queryParams = Yii::$app->request->queryParams;
+            $sort = explode(',',$queryParams['sort']);
+                $dataz = Currencies::find()
+                ->where(['!=','Name','USD'])
+                ->andWhere(['!=','Name','EUR'])
+                ->joinWith(['coinlistinfos'])
+                ->limit($queryParams['limit'])
+                ->offset($queryParams['offset'])
+                ->orderBy([$sort[0] => $sort[1] == 'asc' ? SORT_ASC : SORT_DESC]) 
+                ->groupBy($sort[0])
+                ->asArray()
+                ->all();
+                return  $dataz;
+        }
 
-    public function actionIndex(){}
+             public function actionMarketCap() {
+                \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                $queryParams = Yii::$app->request->queryParams;
+                $curr = Currencies::find()->where(['Symbol'=>$queryParams['symbol']])->one();
+                $result = Coinlistinfo::find()->where(['TOSYMBOL'=>$curr->id])->sum('MKTCAP');
+                return $result;
+            }
+
+        public function actionIndex(){}
 
 
-    public function extraFields() {
-        return ['coinlistinfos'];
-    }
+        public function extraFields() {
+            return ['coinlistinfos'];
+        }
 
 
     public function actionExchangeList(){
