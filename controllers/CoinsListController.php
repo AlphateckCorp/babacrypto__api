@@ -22,6 +22,7 @@ class CoinsListController extends ActiveController
                 $dataz = Currencies::find()
                 ->where(['!=','Name','USD'])
                 ->andWhere(['!=','Name','EUR'])
+                ->andWhere(['=','TOSYMBOL',$queryParams['currency']])
                 ->joinWith(['coinlistinfos'])
                 ->limit($queryParams['limit'])
                 ->offset($queryParams['offset'])
