@@ -105,7 +105,7 @@ class SiteController extends Controller
         return $this->goHome();
     }
 
-    /**
+    /**decode
      * Displays contact page.
      *
      * @return Response|string

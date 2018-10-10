@@ -60,16 +60,15 @@ $config = [
             //  'coinmarket' => 'coins-list/fetch',
             //  'coindtlsd' => 'site/fetchs',
              'yours' => 'coins-list/your',
+             'marketcap' => 'coins-list/market-cap',
              'storeexchangelist' => 'coins-list/store-exchange-list',
              'exchangelist' => 'coins-list/exchange-list',
 
 
              'exchangecoin' => 'coins-list/exchange-coin-list',
              'exchangemarketlist' => 'coins-list/exchange-market-list',
-
-
-             
              'onlymarket' => 'coins-list/only-market',
+             'exchangeMarket' => 'coins-list/market',
             //  'tests' => 'tests/make',
             ],
             // 'rules' => [

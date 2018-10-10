@@ -20,6 +20,6 @@ return [
     'password' => 'Smile@1234',
     // 'dsn' => 'mysql:host=localhost;dbname=babacrypto_master',
     // 'username' => 'root',
-    // 'password' => 'root',
+    // 'password' => 'Smile@1234',
     'charset' => 'utf8'
 ];

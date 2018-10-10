@@ -51,4 +51,12 @@ class Exchanges extends \yii\db\ActiveRecord
     //     // return $this->hasOne(Coinlistinfo::className(), ['CoinlistId' => 'id']);
     //     return $this->hasMany(Coinlistinfo::className(), ['CoinlistId' => 'id']);
     // }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getExchangeList()
+    {
+        return $this->hasMany(Exchangelist::className(), ['MARKET' => 'id']);
+    }
 }

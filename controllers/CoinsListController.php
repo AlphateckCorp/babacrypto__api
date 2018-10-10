@@ -15,26 +15,59 @@ class CoinsListController extends ActiveController
 {
     public $modelClass = 'app\models\Coinlistinfo';
 
-    public function actionYour() {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $dataz = Currencies::find()->joinWith(['coinlistinfos'])->asArray()->all();
-        return  $dataz;
-    }
+        public function actionYour() {
+            \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            $queryParams = Yii::$app->request->queryParams;
+            $sort = explode(',',$queryParams['sort']);
+                $dataz = Currencies::find()
+                ->where(['!=','Name','USD'])
+                ->andWhere(['!=','Name','EUR'])
+                ->andWhere(['=','TOSYMBOL',$queryParams['currency']])
+                ->joinWith(['coinlistinfos'])
+                ->limit($queryParams['limit'])
+                ->offset($queryParams['offset'])
+                ->orderBy([$sort[0] => $sort[1] == 'asc' ? SORT_ASC : SORT_DESC]) 
+                ->groupBy($sort[0])
+                ->asArray()
+                ->all();
+                return  $dataz;
+        }
 
-    public function actionIndex(){}
+             public function actionMarketCap() {
+                \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                $queryParams = Yii::$app->request->queryParams;
+                $curr = Currencies::find()->where(['Symbol'=>$queryParams['symbol']])->one();
+                $result = Coinlistinfo::find()->where(['TOSYMBOL'=>$curr->id])->sum('MKTCAP');
+                return $result;
+            }
+
+        public function actionIndex(){}
 
 
-    public function extraFields() {
-        return ['coinlistinfos'];
-    }
+        public function extraFields() {
+            return ['coinlistinfos'];
+        }
 
 
     public function actionExchangeList(){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $exchangeList = Exchangelist::find()->joinWith(['exchanges','currencies'])->asArray()->all();
-        return ($exchangeList);
+        $count =  Exchanges::find()->count();
+        $queryParams = Yii::$app->request->queryParams;
+        $sort = explode(',',$queryParams['sort']);
+        $limit = $queryParams['limit'];
+        $offset = $queryParams['offset'];
+        $command = Yii::$app->db->createCommand("SELECT exchanges.id,exchanges.market,group_concat(DISTINCT(currencies.Symbol)) as coins,exchanges.externalLink, sum(exchangelist.VOLUME24HOUR) as VOLUME24HOUR FROM `exchanges` LEFT JOIN `exchangelist` ON exchanges.id = exchangelist.MARKET LEFT JOIN `currencies` ON currencies.id=exchangelist.FROMSYMBOL GROUP BY exchanges.MARKET  ORDER BY ".$sort[0]." ".$sort[1]." LIMIT ".$limit." OFFSET ".$offset);
+        $result = $command->queryAll();
+        return ['rows'=>$result,'count'=>$count];
     }
    
+    public function actionMarket() {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $queryParams = Yii::$app->request->queryParams;
+        $market =  Exchanges::find()->where(['MARKET' => $queryParams['market']])->one();
+        return $market;
+    }
+
     public function actionExchangeCoinList(){
         if(Yii::$app->request->post())
         {   
@@ -44,8 +77,8 @@ class CoinsListController extends ActiveController
             $coinName = str_replace('-', ' ', $coinName);
            
             $data = Currencies::find()
-            ->where(['CoinName'=>$coinName])
-            ->joinWith(['coinlistinfos'])
+            ->where(['currencies.CoinName'=>$coinName])
+            ->joinWith(['coinlistinfos','coinlistinfos.tosymbol coin'])
             ->asArray()
             ->all();
             return ($data);
